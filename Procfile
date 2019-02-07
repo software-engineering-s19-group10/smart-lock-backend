@@ -1,0 +1,1 @@
+web: gunicorn smartlock_backend.wsgi
