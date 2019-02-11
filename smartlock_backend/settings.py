@@ -28,7 +28,7 @@ def find_or_create_secret_key():
     sys.path.insert(1, SECRET_KEY_DIR)
 
     if os.path.isfile(SECRET_KEY_FILEPATH):
-        from secret_key import SECRET_KEY
+        from smartlock_backend.secret_key import SECRET_KEY
         return SECRET_KEY
     else:
         from django.utils.crypto import get_random_string
@@ -36,7 +36,7 @@ def find_or_create_secret_key():
         new_key = get_random_string(50, chars)
         with open(SECRET_KEY_FILEPATH, 'w') as f:
             f.write('# Django secret key\n# DO NOT SHARE in version control\n\nSECRET_KEY={}\n'.format(new_key))
-            from secret_key import SECRET_KEY
+            from smartlock_backend.secret_key import SECRET_KEY
             return SECRET_KEY
 
 # SECURITY WARNING: keep the secret key used in production secret!
