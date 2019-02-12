@@ -25,6 +25,9 @@ class User(models.Model):
         help_text='User email address'
     )
 
+    def __str__(self):
+        return '{} ({})'.format(str(self.full_name), str(self.username))  
+
 
 class Owner(models.Model):
     """
@@ -37,6 +40,9 @@ class Owner(models.Model):
         null=False,
         on_delete=models.CASCADE,
     )
+
+    def __str__(self):
+        return str(User.objects.get(id=self.user))
 
 
 class Lock(models.Model):
@@ -56,6 +62,9 @@ class Lock(models.Model):
         max_length=400,
         default='N/A'
     )
+
+    def __str__(self):
+        return 'Lock {} at {}'.format(self.id, str(self.address))
 
 
 class Permission(models.Model):

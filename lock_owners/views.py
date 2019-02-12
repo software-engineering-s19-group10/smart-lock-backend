@@ -44,3 +44,15 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Response(status.HTTP_200_OK)
         else:
             raise KeyError('ID not found')
+
+
+class OwnerCreateView(generics.ListCreateAPIView):
+    queryset = Owner.objects.all()
+    serializer_class = OwnerSerializer
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class OwnerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Owner.objects.all()
+    serializer_class = OwnerSerializer

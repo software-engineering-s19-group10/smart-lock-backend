@@ -14,9 +14,16 @@ class OwnerSerializer(serializers.ModelSerializer):
 class LockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lock
-        fields = ('id', 'lock_owner')
+        fields = ('id', 'lock_owner', 'address')
 
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
-        fields = ('id', 'user', 'lock', 'allowed_access')
+        fields = (
+            'id', 
+            'user', 
+            'lock', 
+            'allowed_access_general', 
+            'time_start', 
+            'time_end'
+        )
