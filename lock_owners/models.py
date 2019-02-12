@@ -51,6 +51,12 @@ class Lock(models.Model):
         on_delete=models.CASCADE,
     )
 
+    address = models.CharField(
+        help_text='Address of the home where the lock is',
+        max_length=400,
+        default='N/A'
+    )
+
 
 class Permission(models.Model):
     """
@@ -72,7 +78,17 @@ class Permission(models.Model):
         on_delete=models.CASCADE
     )
 
-    allowed_access = models.BooleanField(
+    allowed_access_general = models.BooleanField(
         help_text='Is the user allowed to open the lock?',
         default=False
+    )
+
+    time_start = models.TimeField(
+        help_text='At what time can the user open the lock every day?',
+        auto_now=True
+    )
+
+    time_end = models.TimeField(
+        help_text='Until what time can the user open the lock?',
+        auto_now=True
     )

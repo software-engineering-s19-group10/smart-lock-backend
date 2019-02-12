@@ -40,7 +40,7 @@ def find_or_create_secret_key():
             return SECRET_KEY
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = find_or_create_secret_key()
+SECRET_KEY = os.getenv('SECRET_KEY', 'asdfghjklqwertyuiop1234567890')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
