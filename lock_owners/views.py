@@ -44,3 +44,14 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Response(status.HTTP_200_OK)
         else:
             raise KeyError('ID not found')
+
+
+class LockCreateView(generics.ListCreateAPIView):
+    queryset = Lock.objects.all()
+    serializer_class = LockSerializer
+
+
+class LockDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Lock.objects.all()
+    serializer_class = LockSerializer
+    
