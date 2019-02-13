@@ -29,30 +29,14 @@ class User(models.Model):
         return '{} ({})'.format(str(self.full_name), str(self.username))  
 
 
-class Owner(models.Model):
-    """
-    Database model for the owner of a lock. Directly links to user for basic 
-    info, but with a few added fields.
-    """
-    user = models.ForeignKey(
-        User,
-        help_text='User ID of the owner',
-        null=False,
-        on_delete=models.CASCADE,
-    )
-
-    def __str__(self):
-        return str(User.objects.get(id=self.user))
-
-
 class Lock(models.Model):
     """
     Database model for a smart lock. Contains useful info and links to
     permissions per user.
     """
     lock_owner = models.ForeignKey(
-        Owner,
-        help_text='Owner ID of the lock',
+        User,
+        help_text='User ID who owns the lock',
         null=False,
         on_delete=models.CASCADE,
     )

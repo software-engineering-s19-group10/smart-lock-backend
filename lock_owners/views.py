@@ -2,8 +2,8 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from lock_owners.models import User, Owner, Lock, Permission
-from lock_owners.serializers import UserSerializer, OwnerSerializer
+from lock_owners.models import User, Lock, Permission
+from lock_owners.serializers import UserSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
 
 
@@ -44,15 +44,3 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Response(status.HTTP_200_OK)
         else:
             raise KeyError('ID not found')
-
-
-class OwnerCreateView(generics.ListCreateAPIView):
-    queryset = Owner.objects.all()
-    serializer_class = OwnerSerializer
-    def perform_create(self, serializer):
-        serializer.save()
-
-
-class OwnerDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Owner.objects.all()
-    serializer_class = OwnerSerializer
