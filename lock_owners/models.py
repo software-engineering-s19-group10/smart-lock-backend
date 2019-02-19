@@ -78,10 +78,28 @@ class Permission(models.Model):
 
     time_start = models.TimeField(
         help_text='At what time can the user open the lock every day?',
-        auto_now=True
     )
 
     time_end = models.TimeField(
         help_text='Until what time can the user open the lock?',
-        auto_now=True
+    )
+
+class UserImage(models.Model):
+    """
+    Database model representing an image captured of a user from the lock's 
+    camera. It associates an image (basically just bytes) with a row in the 
+    User table. The user entry can be null, however, for unidentified users.
+    """
+    image = models.ImageField(
+        help_text='Image of the user'
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    image_datetime = models.DateTimeField(
+        help_text='Date and time the image was captured'
     )

@@ -54,4 +54,14 @@ class LockCreateView(generics.ListCreateAPIView):
 class LockDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lock.objects.all()
     serializer_class = LockSerializer
+
+
+class PermissionCreateView(generics.ListCreateAPIView):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+
+
+class PermissionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
     
