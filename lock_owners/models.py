@@ -1,28 +1,31 @@
+import binascii
+import os
+
 from django.db import models
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+from django.conf import settings
+from django.dispatch import receiver
+from smartlock_backend import settings
 
 # Create your models here.
-class User(models.Model):
+class User(AbstractUser):
     """
     Database model for a user of our system. A user is just someone who uses 
     the system.
     """
-    username = models.CharField(
-        help_text='Username of user (max length: 100 characters)',
-        max_length=100
-    )
 
     full_name = models.CharField(
         help_text='Full name of the user',
-        max_length=200
+        max_length=200,
+        null=False,
+        blank=False
     )
-
+    
     phone = models.CharField(
         help_text='User phone number (no spaces or dashes, 10 character max)',
         max_length=10
-    )
-
-    email = models.EmailField(
-        help_text='User email address'
     )
 
     def __str__(self):
@@ -103,3 +106,8 @@ class UserImage(models.Model):
     image_datetime = models.DateTimeField(
         help_text='Date and time the image was captured'
     )
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
