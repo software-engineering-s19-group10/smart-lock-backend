@@ -103,3 +103,27 @@ class UserImage(models.Model):
     image_datetime = models.DateTimeField(
         help_text='Date and time the image was captured'
     )
+
+
+class StrangerReport(models.Model):
+    """
+        Database model representing a stranger report. It holds latitude
+        and longitude of report and the datetime of the report.
+    """
+
+    latitude = models.CharField(
+        help_text="latitude of suspicious reporting"
+    )
+
+    longitude = models.CharField(
+        help_text="longitude of suspicious reporting"
+    )
+
+    stranger_report_time = models.DateTimeField(
+        help_text='Date and time the report was made'
+    )
+
+    lock = models.ForeignKey(
+        Lock,
+        on_delete=models.CASCADE
+    )

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lock_owners.models import User, Lock, Permission
+from lock_owners.models import User, Lock, Permission, StrangerReport
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,4 +22,14 @@ class PermissionSerializer(serializers.ModelSerializer):
             'allowed_access_general', 
             'time_start', 
             'time_end'
+        )
+
+class StrangerReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StrangerReport
+        fields = (
+            'latitude',
+            'longitude',
+            'stranger_report_time',
+            'lock'
         )
