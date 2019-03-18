@@ -4,7 +4,7 @@ from lock_owners.models import User, Lock, Permission, StrangerReport
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'phone', 'email')
+        fields = ('id', 'username', 'password', 'full_name', 'phone', 'email')
 
 
 class LockSerializer(serializers.ModelSerializer):

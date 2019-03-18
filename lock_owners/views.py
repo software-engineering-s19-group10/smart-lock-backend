@@ -1,22 +1,30 @@
-from rest_framework import generics
-from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework import generics, status
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from lock_owners.models import User, Lock, Permission
 from lock_owners.serializers import UserSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
+from rest_framework.views import APIView
+
+from lock_owners.models import Lock, Permission, User
+from lock_owners.serializers import (LockSerializer, PermissionSerializer,
+                                     UserSerializer)
 
 class UserCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
     def perform_create(self, serializer):
         serializer.save()
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
 
     def retrieve(self, request, *args, **kwargs):
         if 'pk' in kwargs:
@@ -50,21 +58,25 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 class LockCreateView(generics.ListCreateAPIView):
     queryset = Lock.objects.all()
     serializer_class = LockSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class LockDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lock.objects.all()
     serializer_class = LockSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class PermissionCreateView(generics.ListCreateAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class PermissionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class StrangerReportView(generics.ListCreateAPIView):
@@ -126,4 +138,3 @@ def sms(request):
     resp.message(text)
 
     return str(resp)
-
