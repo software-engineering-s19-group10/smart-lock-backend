@@ -3,12 +3,13 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from lock_owners.models import User, Lock, Permission
+from lock_owners.models import User, Lock, Permission, StrangerReport
 from lock_owners.serializers import UserSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from rest_framework.views import APIView
+import django.http.response as httpresponse
 
 from lock_owners.models import Lock, Permission, User
 from lock_owners.serializers import (LockSerializer, PermissionSerializer,
@@ -80,46 +81,46 @@ class PermissionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class StrangerReportView(generics.ListCreateAPIView):
-    queryset = Permission.objects.all()
+    queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
 
 
 # Your Account Sid and Auth Token from twilio.com/console
-account_sid = 'AC1a776f3f8a6c40eca9c8a7b1669fa713'
-auth_token = 'cf97390a0f0cdb9c6c2ec296d1858d41'
+key_reader = open("key.txt", "r")
+account_sid = key_reader.readline()
+auth_token = key_reader.readline()
 client = Client(account_sid, auth_token)
 twilio_number = '+18566662253'
 
-
 def send_text(request):
-    reponse = request.get("content") + " Reply STOP to stop SMS notifications."
+    response = request.GET["content"] + " Reply STOP to stop SMS notifications."
+
     message = client.messages.create(
         from_=twilio_number,
-        body=reponse,
-        to=request.get("dest")
+        body=response,
+        to="+" + request.GET["dest"]
     )
 
-    print(message.sid)
+    return httpresponse.HttpResponse("Successful")
 
 
+# DISCLAIMER: MMS and REPLY don't work yet
 def send_mms(request):
     # get uid from mms
-    uid = request.get("uid")
-
-    response = request.get("content") + " Reply STOP to stop SMS notifications."
+    response = request.POST.get("content") + " Reply STOP to stop SMS notifications."
     message = client.messages.create(
         body=response,
         from_=twilio_number,
-        media_url=request.get("img_url"),
-        to=request.get("dest")
+        # media_url=request.POST.get("img_url"),
+        to=request.POST.get("dest")
     )
 
-    request.get("method") == "POST"
+    # if request.get("method") == "POST":
     # send dj http response. send dictionary back
-    print(message.sid)
+    return httpresponse.HttpResponse("Successful")
 
 
-def sms(request):
+def reply(request):
     """Respond to incoming messages with a friendly SMS."""
     # Get information about the
     number = request.form['From']

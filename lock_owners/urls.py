@@ -19,8 +19,8 @@ urlpatterns = [
     url(r'^api/permissions/', PermissionCreateView.as_view()),
     url(r'^api/permissions/(?P<pk>[0-9]+)/$', PermissionDetailView.as_view()),
     url(r'^api/srn/$', StrangerReportView.as_view()),
+    url(r'^api/sms/$', send_text),
     url(r'^api/mms/$', send_mms),
-    url(r'^api/sms/$', send_text)
     url(r'^api/authenticate/$', obtain_auth_token),
 ]
 

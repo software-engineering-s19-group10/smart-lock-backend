@@ -116,11 +116,11 @@ class StrangerReport(models.Model):
         and longitude of report and the datetime of the report.
     """
 
-    latitude = models.CharField(
+    latitude = models.FloatField(
         help_text="latitude of suspicious reporting"
     )
 
-    longitude = models.CharField(
+    longitude = models.FloatField(
         help_text="longitude of suspicious reporting"
     )
 
