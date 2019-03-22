@@ -41,3 +41,35 @@ The HTTP header will be formatted `Authorization: Token <token>`.
   
 `lock_owners/api/permissions/<num>/`
 + Works like the users endpoint
+
+`lock_owners/api/srn`
++ `GET` request - gets a list of all stranger reports in database. 
+
+Here is an example of the returned value: 
+
+``` json
+[
+{"latitude":65.0,"longitude":-144.123,"stranger_report_time":"2019-03-20T16:42:37Z","lock":1},
+{"latitude":65.0,"longitude":-144.123,"stranger_report_time":"2019-03-20T16:42:37Z","lock":1}
+] 
+```
+
++ `POST` request - adds a stranger report with the data fields passed in with the request. Data should be in the same format as one of the entries from the `GET` request at the URL.
+That means pass in latitude and longitude. For stranger report time, pass in time in ISO 8601 format. If you are using python,
+just use the datetime module. For "lock", pass in id.
+  
+
+`lock_owners/api/sms`
+To send texts, use the following url path for whatever url we use:
+
+```
+http://example.com/lock_owners/api/sms/?content=hi%20%how%20are%20you&dest=18001231231
+```
+
+For the parameters, as you can see pass in content which will be the body of the text. Pass in dest to be the
+number we send the message to. The phone number should have the country code in front. So, if you are sending
+a number like 973-123-1232, write it like 19731231232.
+
+`lock_owners/api/mms`
+
+You can send MMS messages but you have to give a url for an image to send. The parameters to give are the same as in sms but there's an extra parameter which is "img_url" which takes the URL of the image. 
