@@ -70,6 +70,8 @@ For the parameters, as you can see pass in content which will be the body of the
 number we send the message to. The phone number should have the country code in front. So, if you are sending
 a number like 973-123-1232, write it like 19731231232.
 
+For the demo, i will have to add your number to a list of recognized numbers.
+
 `lock_owners/api/mms`
 
 You can send MMS messages but you have to give a url for an image to send. The parameters to give are the same as in sms but there's an extra parameter which is "img_url" which takes the URL of the image. 
