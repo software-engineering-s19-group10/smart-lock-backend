@@ -111,7 +111,7 @@ def send_mms(request):
     message = client.messages.create(
         body=response,
         from_=twilio_number,
-        # media_url=request.POST.get("img_url"),
+        media_url=request.POST.get("img_url"),
         to=request.POST.get("dest")
     )
 
