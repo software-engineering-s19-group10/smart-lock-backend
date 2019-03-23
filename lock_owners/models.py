@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.dispatch import receiver
 from smartlock_backend import settings
-
+from datetime import datetime
 
 # Create your models here.
 class User(AbstractUser):
@@ -125,6 +125,7 @@ class StrangerReport(models.Model):
     )
 
     stranger_report_time = models.DateTimeField(
+        default=datetime.now,
         help_text='Date and time the report was made'
     )
 
