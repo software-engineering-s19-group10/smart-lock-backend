@@ -32,18 +32,6 @@ Back-end database and REST API for the Smart Lock application.
 + Run `python3 manage.py makemigrations` and then `python3 manage.py migrate` to reconcile changes LOCALLY ONLY.
 + To reconcile changes in production (on Heroku), you have to add `heroku run` to the beginning of the two commands above.
 
-## Sending Texts
-To send texts, use the following url path for whatever url we use:
-
-'''
-http://example.com/lock_owners/api/sms/?content=hi%20%how%20are%20you&dest=18001231231
-'''
-
-For the parameters, as you can see pass in content which will be the body of the text. Pass in dest to be the
-number we send the message to. The phone number should have the country code in front. So, if you are sending
-a number like 973-123-1232, write it like 19731231232.
-
-Currently, MMS messages and custom message replies are not supported.
 
 ## Local vs Production
 + The local database is an SQLite database. The production database on Heroku is a PostgreSQL database. They behave pretty much the same for all of our uses, and SQLite is easier to work with locally.
