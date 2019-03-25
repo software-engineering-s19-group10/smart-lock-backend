@@ -11,6 +11,8 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from rest_framework.views import APIView
 import django.http.response as httpresponse
+from django.http import HttpResponse, JsonResponse
+from django.core import serializers
 
 from lock_owners.models import Lock, Permission, User
 from lock_owners.serializers import (LockSerializer, PermissionSerializer,
@@ -96,6 +98,20 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
 class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
+
+
+def get_events_for_lock(request, id):
+    if request.method == 'GET':
+        events = Event.objects.filter(lock=id)
+        events_json = []
+        for event in events:
+            event_json = {}
+            event_json['timestamp'] = str(event.timestamp)
+            event_json['duration'] = event.duration
+            event_json['lock'] = event.lock.id
+            event_json['event_type'] = event.event_type
+            events_json.append(event_json)
+        return HttpResponse(str(events_json), content_type='json')
 
 
 # Your Account Sid and Auth Token from twilio.com/console
