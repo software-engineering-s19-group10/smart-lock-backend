@@ -21,14 +21,14 @@ from lock_owners.serializers import (LockSerializer, PermissionSerializer,
 class UserCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
     def perform_create(self, serializer):
         serializer.save()
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
 
     def retrieve(self, request, *args, **kwargs):
         if 'pk' in kwargs:
@@ -62,25 +62,25 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 class LockCreateView(generics.ListCreateAPIView):
     queryset = Lock.objects.all()
     serializer_class = LockSerializer
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
 
 
 class LockDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Lock.objects.all()
     serializer_class = LockSerializer
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
 
 
 class PermissionCreateView(generics.ListCreateAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
 
 
 class PermissionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
 
 
 class EventCreateView(generics.ListCreateAPIView):
