@@ -33,6 +33,20 @@ class User(AbstractUser):
         return '{} ({})'.format(str(self.full_name), str(self.username))  
 
 
+class Visitor(models.Model):
+    """
+    Database model representing a general visitor for a lock.
+    Visitors can be granted access for locks.
+    """
+
+    full_name = models.CharField(
+        help_text='Name of the visitor',
+        max_length=200,
+        null=False,
+        blank=False
+    )
+
+
 class Lock(models.Model):
     """
     Database model for a smart lock. Contains useful info and links to
@@ -57,12 +71,11 @@ class Lock(models.Model):
 
 class Permission(models.Model):
     """
-    Database model representing the 'permissions' that a given user has to 
-    access a lock. For now, it is just a boolean (is the user allowed to 
-    unlock?) but it can be expanded later.
+    Database model representing the 'permissions' that a given visitor has to 
+    access a lock.
     """
-    user = models.ForeignKey(
-        User,
+    visitor = models.ForeignKey(
+        Visitor,
         help_text='User that permissions are for',
         null=False,
         on_delete=models.CASCADE
@@ -89,24 +102,58 @@ class Permission(models.Model):
     )
 
 
-class UserImage(models.Model):
+class VisitorImage(models.Model):
     """
     Database model representing an image captured of a user from the lock's 
     camera. It associates an image (basically just bytes) with a row in the 
     User table. The user entry can be null, however, for unidentified users.
     """
-    image = models.ImageField(
-        help_text='Image of the user'
+    image = models.BinaryField(
+        help_text='Image of the user, in bytes',
+        editable=True
     )
 
-    user = models.ForeignKey(
-        User,
+    filename = models.CharField(
+        help_text='Name of the file to deliver the bytes as',
+        max_length=200
+    )
+
+    visitor = models.ForeignKey(
+        Visitor,
         on_delete=models.SET_NULL,
+        null=True
+    )
+
+    lock = models.ForeignKey(
+        Lock,
+        on_delete=models.CASCADE,
         null=True
     )
 
     image_datetime = models.DateTimeField(
         help_text='Date and time the image was captured'
+    )
+
+
+class Event(models.Model):
+    timestamp = models.TimeField(
+        help_text='Time that the event happened',
+        auto_now=True
+    )
+
+    duration = models.IntegerField(
+        help_text='Number of seconds that the event occurred for'
+    )
+
+    lock = models.ForeignKey(
+        Lock,
+        on_delete=models.CASCADE,
+        help_text='Lock where the event occurred'
+    )
+
+    event_type = models.CharField(
+        help_text='String representing the type of event that occurred',
+        max_length=200
     )
 
 

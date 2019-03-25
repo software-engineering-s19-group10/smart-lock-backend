@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lock_owners.models import User, Lock, Permission, StrangerReport
+from lock_owners.models import User, Lock, Permission, StrangerReport, Event
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +12,7 @@ class LockSerializer(serializers.ModelSerializer):
         model = Lock
         fields = ('id', 'lock_owner', 'address')
 
+
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
@@ -23,6 +24,18 @@ class PermissionSerializer(serializers.ModelSerializer):
             'time_start', 
             'time_end'
         )
+
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = (
+            'timestamp',
+            'duration',
+            'lock',
+            'event_type'
+        )
+
 
 class StrangerReportSerializer(serializers.ModelSerializer):
     class Meta:

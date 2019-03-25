@@ -3,9 +3,10 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from lock_owners.models import User, Lock, Permission, StrangerReport
+from lock_owners.models import User, Lock, Permission, Event, StrangerReport
 from lock_owners.serializers import UserSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
+from lock_owners.serializers import EventSerializer
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from rest_framework.views import APIView
@@ -80,13 +81,25 @@ class PermissionDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
 
 
+class EventCreateView(generics.ListCreateAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = (IsAuthenticated,)
+
+
 class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
 
 
 # Your Account Sid and Auth Token from twilio.com/console
-key_reader = open("key.txt", "r")
+key_reader = open("lock_owners/key.txt", "r")
 account_sid = key_reader.readline()
 auth_token = key_reader.readline()
 client = Client(account_sid, auth_token)
