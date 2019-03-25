@@ -84,7 +84,7 @@ class PermissionDetailView(generics.RetrieveUpdateDestroyAPIView):
 class EventCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = (IsAuthenticated,)
+    #permission_classes = (IsAuthenticated,)
 
 
 class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
