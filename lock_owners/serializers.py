@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from lock_owners.models import User, Lock, Permission, StrangerReport, Event
+from lock_owners.models import Owner, Lock, Permission, StrangerReport, Event
 
-class UserSerializer(serializers.ModelSerializer):
+class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = Owner
         fields = ('id', 'username', 'password', 'full_name', 'phone', 'email')
 
 

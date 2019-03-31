@@ -47,7 +47,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'lock_owners.User'
+AUTH_USER_MODEL = 'lock_owners.Owner'
 
 # Application definition
 

@@ -3,8 +3,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from lock_owners.models import User, Lock, Permission, Event, StrangerReport
-from lock_owners.serializers import UserSerializer, StrangerReportSerializer
+from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport
+from lock_owners.serializers import OwnerSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
 from lock_owners.serializers import EventSerializer
 from twilio.rest import Client
@@ -14,34 +14,34 @@ import django.http.response as httpresponse
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 
-from lock_owners.models import Lock, Permission, User
+from lock_owners.models import Lock, Permission, Owner
 from lock_owners.serializers import (LockSerializer, PermissionSerializer,
-                                     UserSerializer)
+                                     OwnerSerializer)
 
-class UserCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class OwnerCreateView(generics.ListCreateAPIView):
+    queryset = Owner.objects.all()
+    serializer_class = OwnerSerializer
     #permission_classes = (IsAuthenticated,)
     def perform_create(self, serializer):
         serializer.save()
 
-class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class OwnerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Owner.objects.all()
+    serializer_class = OwnerSerializer
     #permission_classes = (IsAuthenticated,)
 
     def retrieve(self, request, *args, **kwargs):
         if 'pk' in kwargs:
-            user = User.objects.get(id=kwargs.get('pk'))
-            serialized = UserSerializer(user)
+            user = Owner.objects.get(id=kwargs.get('pk'))
+            serialized = OwnerSerializer(user)
             return Response(serialized.data)
         else:
             raise KeyError('ID cannot be found')
 
     def patch(self, request, *args, **kwargs):
         if 'pk' in kwargs:
-            user = User.objects.get(id=kwargs.get('pk'))
-            serialized = UserSerializer(user, data=request.data, partial=True)
+            user = Owner.objects.get(id=kwargs.get('pk'))
+            serialized = OwnerSerializer(user, data=request.data, partial=True)
             if serialized.is_valid():
                 serialized.save()
                 return Response(serialized.data)
@@ -52,7 +52,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         if 'pk' in kwargs:
-            user = User.objects.get(id=kwargs.get('pk'))
+            user = Owner.objects.get(id=kwargs.get('pk'))
             user.delete()
             return Response(status.HTTP_200_OK)
         else:

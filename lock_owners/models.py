@@ -9,12 +9,14 @@ from django.conf import settings
 from django.dispatch import receiver
 from smartlock_backend import settings
 from datetime import datetime
+from django.contrib.auth.models import User
 
 # Create your models here.
-class User(AbstractUser):
+class Owner(AbstractUser):
     """
-    Database model for a user of our system. A user is just someone who uses 
-    the system.
+    Database model for an owner of a lock. Owners can own multiple locks, and 
+    they can also own zero locks. They are just a direct user of our lock 
+    system.
     """
 
     full_name = models.CharField(
@@ -53,7 +55,7 @@ class Lock(models.Model):
     permissions per user.
     """
     lock_owner = models.ForeignKey(
-        User,
+        Owner,
         help_text='User ID who owns the lock',
         null=False,
         on_delete=models.CASCADE,
@@ -75,7 +77,7 @@ class Permission(models.Model):
     access a lock.
     """
     visitor = models.ForeignKey(
-        Visitor,
+        Owner,
         help_text='User that permissions are for',
         null=False,
         on_delete=models.CASCADE
