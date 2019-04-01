@@ -12,7 +12,7 @@ from lock_owners.views import (LockCreateView, LockDetailView,
                                PermissionCreateView, PermissionDetailView,
                                OwnerCreateView, OwnerDetailView)
 
-from lock_owners.views import verify_auth_code
+from lock_owners.views import verify_auth_code, get_temp_auth_id_for_visitor_and_lock, get_auth_code_for_id
 
 app_name = 'lock_owners'
 
@@ -31,7 +31,9 @@ urlpatterns = [
     url(r'^api/mms/$', send_mms),
     url(r'^api/authenticate/$', obtain_auth_token),
     url(r'^api/temp_auth/$', TempAuthCreateView.as_view()),
-    url(r'^api/temp_auth/verify/$', verify_auth_code)
+    url(r'^api/temp_auth/verify/$', verify_auth_code),
+    url(r'^api/temp_auth/get_id/$', get_temp_auth_id_for_visitor_and_lock),
+    url(r'^api/temp_auth/get_code/$', get_auth_code_for_id),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

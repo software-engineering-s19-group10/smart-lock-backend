@@ -152,8 +152,57 @@ def verify_auth_code(request):
         except KeyError as e:
             data = {'message': str(e), 'status': 404}
             return JsonResponse(data)
+            
+
+def get_temp_auth_id_for_visitor_and_lock(request):
+    if request.method == 'GET':
+        try:
+            visitor = request.GET['visitor']
+            lock = request.GET['lock']
+            temp_auth = TempAuth.objects.filter(visitor=visitor, lock=lock)
+            if not temp_auth:
+                data = {
+                    'message': 'Could not find temp auth for visitor/lock pair',
+                    'status': 404
+                }
+                return JsonResponse(data)
+            auth_id = temp_auth[0].id
+            data = {
+                'id': auth_id,
+                'status': 200
+            }
+            return JsonResponse(data)
+        except KeyError:
+            data = {
+                'message': 'Missing visitor ID or lock ID in request',
+                'status': 404
+            }
+            return JsonResponse(data)
 
 
+def get_auth_code_for_id(request):
+    if request.method == 'GET':
+        try:
+            auth_id = request.GET['id']
+            temp_auth = TempAuth.objects.filter(id=auth_id)
+            if not temp_auth:
+                data = {
+                    'message': 'No auth code exists for ID',
+                    'status': 404
+                }
+                return JsonResponse(data)
+            auth_code = temp_auth[0].auth_code
+            data = {
+                'auth_code': auth_code,
+                'status': 200
+            }
+            return JsonResponse(data)
+        except KeyError:
+            data = {
+                'message': 'Temp Auth ID must be specified in request',
+                'status': 404
+            }
+            return JsonResponse(data)
 
 
 # Your Account Sid and Auth Token from twilio.com/console
