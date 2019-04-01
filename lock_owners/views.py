@@ -3,16 +3,18 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport
+from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport, TempAuth
 from lock_owners.serializers import OwnerSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
-from lock_owners.serializers import EventSerializer
+from lock_owners.serializers import EventSerializer, TempAuthSerializer
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from rest_framework.views import APIView
 import django.http.response as httpresponse
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
+from datetime import datetime
+from django.utils import timezone
 
 from lock_owners.models import Lock, Permission, Owner
 from lock_owners.serializers import (LockSerializer, PermissionSerializer,
@@ -112,6 +114,46 @@ def get_events_for_lock(request, id):
             event_json['event_type'] = event.event_type
             events_json.append(event_json)
         return HttpResponse(str(events_json), content_type='json')
+
+
+class TempAuthCreateView(generics.ListCreateAPIView):
+    #permission_classes = (IsAuthenticated,)
+    queryset = TempAuth.objects.all()
+    serializer_class = TempAuthSerializer
+
+
+def verify_auth_code(request):
+    if request.method == 'GET':
+        try:
+            auth_code = request.GET['auth_code']
+            print(auth_code)
+            temp_auth = TempAuth.objects.filter(auth_code=auth_code)
+            if not temp_auth:
+                data = {
+                    'message': 'Temporary auth code does not exist',
+                    'status': 404
+                }
+                return JsonResponse(data)
+            current_datetime = timezone.now()
+            if (current_datetime - temp_auth[0].time_created).days >= 1:
+                data = {
+                    'message': 'Auth code timed out (more than a day old)', 
+                    'status': 404
+                }
+                temp_auth[0].delete()
+                return JsonResponse(data)
+            else:
+                data = {
+                    'message': 'Success', 
+                    'status': 200
+                }
+                temp_auth[0].delete()
+                return JsonResponse(data)
+        except KeyError as e:
+            data = {'message': str(e), 'status': 404}
+            return JsonResponse(data)
+
+
 
 
 # Your Account Sid and Auth Token from twilio.com/console

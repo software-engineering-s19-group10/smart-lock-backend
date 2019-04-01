@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lock_owners.models import Owner, Lock, Permission, StrangerReport, Event
+from lock_owners.models import Owner, Lock, Permission, StrangerReport, Event, TempAuth
 
 class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,4 +45,14 @@ class StrangerReportSerializer(serializers.ModelSerializer):
             'longitude',
             'stranger_report_time',
             'lock'
+        )
+
+class TempAuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TempAuth
+        fields = (
+            'visitor',
+            'lock',
+            'time_created',
+            'auth_code'
         )

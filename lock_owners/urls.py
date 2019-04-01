@@ -3,7 +3,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.urlpatterns import format_suffix_patterns
 from lock_owners.views import OwnerCreateView, OwnerDetailView
 from lock_owners.views import LockCreateView, LockDetailView
-from lock_owners.views import PermissionCreateView, PermissionDetailView, StrangerReportView, send_mms, send_text
+from lock_owners.views import PermissionCreateView, PermissionDetailView, StrangerReportView, send_mms, send_text, TempAuthCreateView
 
 from lock_owners.views import EventCreateView, EventDetailView
 from lock_owners.views import get_events_for_lock
@@ -11,6 +11,8 @@ from lock_owners.views import get_events_for_lock
 from lock_owners.views import (LockCreateView, LockDetailView,
                                PermissionCreateView, PermissionDetailView,
                                OwnerCreateView, OwnerDetailView)
+
+from lock_owners.views import verify_auth_code
 
 app_name = 'lock_owners'
 
@@ -28,6 +30,8 @@ urlpatterns = [
     url(r'^api/sms/$', send_text),
     url(r'^api/mms/$', send_mms),
     url(r'^api/authenticate/$', obtain_auth_token),
+    url(r'^api/temp_auth/$', TempAuthCreateView.as_view()),
+    url(r'^api/temp_auth/verify/$', verify_auth_code)
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -1,5 +1,7 @@
 import binascii
 import os
+from datetime import datetime
+import uuid
 
 from django.db import models
 from rest_framework.authtoken.models import Token
@@ -182,6 +184,33 @@ class StrangerReport(models.Model):
         Lock,
         on_delete=models.CASCADE
     )
+
+class TempAuth(models.Model):
+    visitor = models.ForeignKey(
+        Visitor,
+        on_delete=models.CASCADE,
+        null=False
+    )
+
+    lock = models.ForeignKey(
+        Lock,
+        on_delete=models.CASCADE,
+        null=False,
+    )
+
+    time_created = models.DateTimeField(
+        editable=True,
+        default=datetime.now(),
+        help_text='Time that the temporary authentication code was assigned'
+    )
+
+    auth_code = models.CharField(
+        default=str(uuid.uuid4()),
+        editable=False,
+        max_length=200,
+        help_text='The temporary authentication code to assign to the user'
+    )
+
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
