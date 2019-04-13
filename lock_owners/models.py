@@ -95,7 +95,7 @@ class Permission(models.Model):
     Database model representing the 'permissions' that a given visitor has to 
     access a lock.
     """
-    visitor = models.ForeignKey(
+    resident = models.ForeignKey(
         Resident,
         help_text='User that permissions are for',
         null=False,

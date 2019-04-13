@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
-                                TempAuth, Visitor, VisitorImage)
+                                TempAuth, Visitor, VisitorImage, Resident)
 
 # Register your models here.
 admin.site.register(Owner)
@@ -12,3 +12,4 @@ admin.site.register(VisitorImage)
 admin.site.register(Event)
 admin.site.register(StrangerReport)
 admin.site.register(TempAuth)
+admin.site.register(Resident)
