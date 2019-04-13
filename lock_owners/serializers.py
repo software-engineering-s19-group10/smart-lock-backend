@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from lock_owners.models import Owner, Lock, Permission, StrangerReport, Event, TempAuth
+
+from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
+                                TempAuth)
+
 
 class OwnerSerializer(serializers.ModelSerializer):
     class Meta:

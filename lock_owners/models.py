@@ -1,17 +1,17 @@
 import binascii
 import os
-from datetime import datetime
 import uuid
-
-from django.db import models
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import AbstractUser
-from django.db.models.signals import post_save
-from django.conf import settings
-from django.dispatch import receiver
-from smartlock_backend import settings
 from datetime import datetime
-from django.contrib.auth.models import User
+
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser, User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+
+from smartlock_backend import settings
+
 
 # Create your models here.
 class Owner(AbstractUser):
@@ -35,6 +35,23 @@ class Owner(AbstractUser):
 
     def __str__(self):
         return '{} ({})'.format(str(self.full_name), str(self.username))  
+
+
+class Resident(models.Model):
+    """
+    Database model representing a "trusted resident" of a house.
+    Residents have permissions representing when they are allowed to unlock the 
+    lock. Their pictures are also taken and stored for unlocking via facial 
+    recognition.
+    
+    TODO: We still need to store the images somewhere????
+    """
+    full_name = models.CharField(
+        help_text='Full name of the resident',
+        max_length=200,
+        null=False,
+        blank=False
+    )
 
 
 class Visitor(models.Model):
@@ -199,8 +216,7 @@ class TempAuth(models.Model):
     )
 
     time_created = models.DateTimeField(
-        editable=True,
-        default=datetime.now(),
+        auto_now=True,
         help_text='Time that the temporary authentication code was assigned'
     )
 

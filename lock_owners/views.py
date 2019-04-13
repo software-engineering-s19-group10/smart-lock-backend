@@ -1,24 +1,26 @@
+from datetime import datetime
+
+import django.http.response as httpresponse
+from django.core import serializers
+from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport, TempAuth
-from lock_owners.serializers import OwnerSerializer, StrangerReportSerializer
-from lock_owners.serializers import LockSerializer, PermissionSerializer
-from lock_owners.serializers import EventSerializer, TempAuthSerializer
+from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
-from rest_framework.views import APIView
-import django.http.response as httpresponse
-from django.http import HttpResponse, JsonResponse
-from django.core import serializers
-from datetime import datetime
-from django.utils import timezone
 
-from lock_owners.models import Lock, Permission, Owner
-from lock_owners.serializers import (LockSerializer, PermissionSerializer,
-                                     OwnerSerializer)
+from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
+                                TempAuth)
+from lock_owners.serializers import (EventSerializer, LockSerializer,
+                                     OwnerSerializer, PermissionSerializer,
+                                     StrangerReportSerializer,
+                                     TempAuthSerializer)
+
 
 class OwnerCreateView(generics.ListCreateAPIView):
     queryset = Owner.objects.all()
@@ -121,6 +123,12 @@ class TempAuthCreateView(generics.ListCreateAPIView):
     queryset = TempAuth.objects.all()
     serializer_class = TempAuthSerializer
 
+    def perform_create(self, serializer):
+        print(serializer.data)
+        existing_auths = TempAuth.objects.filter(visitor=serializer.data['visitor'], lock=serializer.data['lock'])
+        if existing_auths.exists():
+            raise ValidationError('Only one auth code per user allowed')
+        serializer.save()
 
 def verify_auth_code(request):
     if request.method == 'GET':

@@ -1,5 +1,7 @@
 from django.contrib import admin
-from lock_owners.models import Owner, Lock, Visitor, Permission, VisitorImage, Event, StrangerReport, TempAuth
+
+from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
+                                TempAuth, Visitor, VisitorImage)
 
 # Register your models here.
 admin.site.register(Owner)

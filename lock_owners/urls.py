@@ -1,18 +1,15 @@
 from django.conf.urls import url
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.urlpatterns import format_suffix_patterns
-from lock_owners.views import OwnerCreateView, OwnerDetailView
-from lock_owners.views import LockCreateView, LockDetailView
-from lock_owners.views import PermissionCreateView, PermissionDetailView, StrangerReportView, send_mms, send_text, TempAuthCreateView
 
-from lock_owners.views import EventCreateView, EventDetailView
-from lock_owners.views import get_events_for_lock
-
-from lock_owners.views import (LockCreateView, LockDetailView,
-                               PermissionCreateView, PermissionDetailView,
-                               OwnerCreateView, OwnerDetailView)
-
-from lock_owners.views import verify_auth_code, get_temp_auth_id_for_visitor_and_lock, get_auth_code_for_id
+from lock_owners.views import (EventCreateView, EventDetailView,
+                               LockCreateView, LockDetailView, OwnerCreateView,
+                               OwnerDetailView, PermissionCreateView,
+                               PermissionDetailView, StrangerReportView,
+                               TempAuthCreateView, get_auth_code_for_id,
+                               get_events_for_lock,
+                               get_temp_auth_id_for_visitor_and_lock, send_mms,
+                               send_text, verify_auth_code)
 
 app_name = 'lock_owners'
 
