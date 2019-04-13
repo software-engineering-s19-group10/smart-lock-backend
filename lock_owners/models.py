@@ -96,7 +96,7 @@ class Permission(models.Model):
     access a lock.
     """
     visitor = models.ForeignKey(
-        Owner,
+        Resident,
         help_text='User that permissions are for',
         null=False,
         on_delete=models.CASCADE
