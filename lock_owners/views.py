@@ -21,6 +21,9 @@ from lock_owners.serializers import (EventSerializer, LockSerializer,
                                      StrangerReportSerializer,
                                      TempAuthSerializer)
 
+from rest_framework.authtoken.models import Token
+
+
 
 class OwnerCreateView(generics.ListCreateAPIView):
     queryset = Owner.objects.all()
@@ -209,6 +212,30 @@ def get_auth_code_for_id(request):
             data = {
                 'message': 'Temp Auth ID must be specified in request',
                 'status': 404
+            }
+            return JsonResponse(data)
+
+def get_user_id_for_token(request):
+    if request.method == 'GET':
+        try:
+            token = Token.objects.filter(key=request.GET['token'])
+            if not token:
+                data = {
+                    'status': 404,
+                    'message': 'Could not get user ID for the token'
+                }
+                return JsonResponse(data)
+            user_id = token[0].user_id
+            data = {
+                'status': 200,
+                'message': 'Successfully got the user ID',
+                'id': user_id
+            }
+            return JsonResponse(data)
+        except KeyError:
+            data = {
+                'status': 404,
+                'message': 'Must send a token to get the user ID for'
             }
             return JsonResponse(data)
 
