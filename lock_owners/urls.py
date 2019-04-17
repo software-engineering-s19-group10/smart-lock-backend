@@ -6,11 +6,11 @@ from lock_owners.views import (EventCreateView, EventDetailView,
                                LockCreateView, LockDetailView, OwnerCreateView,
                                OwnerDetailView, PermissionCreateView,
                                PermissionDetailView, StrangerReportView,
-                               TempAuthCreateView, get_auth_code_for_id,
-                               get_events_for_lock,
-                               get_temp_auth_id_for_visitor_and_lock, send_mms,
-                               send_text, verify_auth_code, 
-                               get_user_id_for_token)
+                               TempAuthCreateView, TempAuthDetailView,
+                               get_auth_code_for_id, get_events_for_lock,
+                               get_temp_auth_id_for_visitor_and_lock,
+                               get_user_id_for_token, send_mms, send_text,
+                               verify_auth_code)
 
 app_name = 'lock_owners'
 
@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^api/mms/$', send_mms),
     url(r'^api/authenticate/$', obtain_auth_token),
     url(r'^api/temp_auth/$', TempAuthCreateView.as_view()),
+    url(r'^api/temp_auth/(?P<pk>[0-9]+)/$', TempAuthDetailView.as_view()),
     url(r'^api/temp_auth/verify/$', verify_auth_code),
     url(r'^api/temp_auth/get_id/$', get_temp_auth_id_for_visitor_and_lock),
     url(r'^api/temp_auth/get_code/$', get_auth_code_for_id),

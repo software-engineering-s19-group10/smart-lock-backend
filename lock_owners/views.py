@@ -133,6 +133,11 @@ class TempAuthCreateView(generics.ListCreateAPIView):
             raise ValidationError('Only one auth code per user allowed')
         serializer.save()
 
+class TempAuthDetailView(generics.RetrieveUpdateDestroyAPIView):
+    #permission_classes = (IsAuthenticated,)
+    queryset = TempAuth.objects.all()
+    serializer_class = TempAuthSerializer
+
 def verify_auth_code(request):
     if request.method == 'GET':
         try:

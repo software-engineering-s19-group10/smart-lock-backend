@@ -54,6 +54,7 @@ class TempAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = TempAuth
         fields = (
+            'id',
             'visitor',
             'lock',
             'time_created',
