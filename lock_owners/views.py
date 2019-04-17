@@ -127,8 +127,9 @@ class TempAuthCreateView(generics.ListCreateAPIView):
     serializer_class = TempAuthSerializer
 
     def perform_create(self, serializer):
-        print(serializer.data)
-        existing_auths = TempAuth.objects.filter(visitor=serializer.data['visitor'], lock=serializer.data['lock'])
+        serializer.is_valid()
+        print(serializer.validated_data)
+        existing_auths = TempAuth.objects.filter(visitor=serializer.validated_data['visitor'], lock=serializer.validated_data['lock'])
         if existing_auths.exists():
             raise ValidationError('Only one auth code per user allowed')
         serializer.save()
