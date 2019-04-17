@@ -203,10 +203,9 @@ class StrangerReport(models.Model):
     )
 
 class TempAuth(models.Model):
-    visitor = models.ForeignKey(
-        Visitor,
-        on_delete=models.CASCADE,
-        null=False
+    visitor = models.CharField(
+        max_length=200,
+        help_text='Identifying name for the visitor'
     )
 
     lock = models.ForeignKey(
