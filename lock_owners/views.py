@@ -114,12 +114,18 @@ def get_events_for_lock(request, id):
         events_json = []
         for event in events:
             event_json = {}
+            event_json['id'] = event.id
+            event_json['event_type'] = event.event_type
+            event_json['lock'] = event.lock.id
             event_json['timestamp'] = str(event.timestamp)
             event_json['duration'] = event.duration
-            event_json['lock'] = event.lock.id
-            event_json['event_type'] = event.event_type
             events_json.append(event_json)
-        return HttpResponse(str(events_json), content_type='json')
+        data = {
+            'status': 200,
+            'message': 'Success',
+            'data': events_json
+        }
+        return JsonResponse(data)
 
 
 class TempAuthCreateView(generics.ListCreateAPIView):
