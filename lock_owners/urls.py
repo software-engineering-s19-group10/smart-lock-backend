@@ -10,7 +10,7 @@ from lock_owners.views import (EventCreateView, EventDetailView,
                                get_auth_code_for_id, get_events_for_lock,
                                get_temp_auth_id_for_visitor_and_lock,
                                get_user_id_for_token, send_mms, send_text,
-                               verify_auth_code)
+                               verify_auth_code, get_temp_auths_for_lock)
 
 app_name = 'lock_owners'
 
@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^api/temp_auth/verify/$', verify_auth_code),
     url(r'^api/temp_auth/get_id/$', get_temp_auth_id_for_visitor_and_lock),
     url(r'^api/temp_auth/get_code/$', get_auth_code_for_id),
+    url(r'^api/temp_auth/lock/$', get_temp_auths_for_lock),
     url(r'^api/authenticate/get_user_id/', get_user_id_for_token)
 ]
 

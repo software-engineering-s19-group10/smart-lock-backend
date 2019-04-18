@@ -13,7 +13,8 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
-
+from django.core import serializers
+import json
 from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
                                 TempAuth)
 from lock_owners.serializers import (EventSerializer, LockSerializer,
@@ -244,6 +245,40 @@ def get_user_id_for_token(request):
                 'message': 'Must send a token to get the user ID for'
             }
             return JsonResponse(data)
+
+
+def get_temp_auths_for_lock(request):
+    if request.method == 'GET':
+        try:
+            temp_auths = TempAuth.objects.filter(lock=request.GET['lock'])
+            if not temp_auths:
+                data = {
+                    'status': 404,
+                    'message': 'No temp auths for lock ID'
+                }
+                return JsonResponse(data)
+            temp_auths_list = list(temp_auths)
+            temp_auths_json = []
+            for auth in list(temp_auths):
+                temp_auths_json.append({
+                    'id': auth.id,
+                    'visitor': auth.visitor,
+                    'lock': auth.lock.id,
+                    'time_created': str(auth.time_created),
+                    'auth_code': str(auth.auth_code)
+                })       
+            print(temp_auths_json)  
+            data = {
+                'status': 200,
+                'message': 'Success',
+                'data': temp_auths_json
+            }
+            return JsonResponse(data)
+        except KeyError:
+            data = {
+                'status': 404,
+                'message': 'No lock ID specified'
+            }
 
 
 # Your Account Sid and Auth Token from twilio.com/console
