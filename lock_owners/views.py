@@ -280,6 +280,36 @@ def get_temp_auths_for_lock(request):
                 'message': 'No lock ID specified'
             }
 
+def get_locks_for_owner(request):
+    if request.method == 'GET':
+        try:
+            locks = Lock.objects.filter(lock_owner=request.GET['owner'])
+            if not locks:
+                data = {
+                    'status': 200,
+                    'message': 'Success',
+                    'data': []
+                }
+                return JsonResponse(data)
+            locks_json = []
+            for item in list(locks):
+                locks_json.append({
+                    'id': item.id,
+                    'lock_owner': item.lock_owner.id,
+                    'address': item.address
+                })
+            data = {
+                'status': 200,
+                'message': 'Success',
+                'data': locks_json
+            }
+            return JsonResponse(data)
+        except KeyError:
+            data = {
+                'status': 404,
+                'message': 'No user ID was passed in with the request.'
+            }
+            return JsonResponse(data)
 
 # Your Account Sid and Auth Token from twilio.com/console
 key_reader = open("lock_owners/key.txt", "r")

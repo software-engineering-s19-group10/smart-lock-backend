@@ -10,15 +10,17 @@ from lock_owners.views import (EventCreateView, EventDetailView,
                                get_auth_code_for_id, get_events_for_lock,
                                get_temp_auth_id_for_visitor_and_lock,
                                get_user_id_for_token, send_mms, send_text,
-                               verify_auth_code, get_temp_auths_for_lock)
+                               verify_auth_code, get_temp_auths_for_lock, 
+                               get_locks_for_owner)
 
 app_name = 'lock_owners'
 
 urlpatterns = [
     url(r'^api/owners/$', OwnerCreateView.as_view()),
     url(r'^api/owners/(?P<pk>[0-9]+)/$', OwnerDetailView.as_view()),
-    url(r'^api/locks/', LockCreateView.as_view()),
+    url(r'^api/locks/$', LockCreateView.as_view()),
     url(r'^api/locks/(?P<pk>[0-9]+)/$', LockDetailView.as_view()),
+    url(r'^api/locks/owner/', get_locks_for_owner),
     url(r'^api/permissions/', PermissionCreateView.as_view()),
     url(r'^api/permissions/(?P<pk>[0-9]+)/$', PermissionDetailView.as_view()),
     url(r'^api/events/$', EventCreateView.as_view()),
