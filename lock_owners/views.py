@@ -127,6 +127,50 @@ def get_events_for_lock(request, id):
         }
         return JsonResponse(data)
 
+def get_events_for_user(request):
+    if request.method == 'GET':
+        try:
+            owner_locks = Lock.objects.filter(lock_owner=request.GET['owner'])
+            if not owner_locks:
+                data = {
+                    'status': 404,
+                    'message': 'No locks exist for the owner'
+                }
+                return JsonResponse(data)
+                
+            owner_locks = list(owner_locks.values('id'))
+            lock_ids = [item.get('id') for item in owner_locks]
+            events = Event.objects.filter(lock__in=lock_ids)
+            if not events:
+                data = {
+                    'status': 404,
+                    'message': 'No events exist for the owner'
+                }
+                return JsonResponse(data)
+
+            events_json = []
+            for event in list(events):
+                events_json.append({
+                    'id': event.id,
+                    'event_type': event.event_type,
+                    'lock': event.lock.id,
+                    'timestamp': str(event.timestamp),
+                    'duration': event.duration
+                })
+            data = {
+                'status': 200,
+                'message': 'Success',
+                'data': events_json
+            }
+            return JsonResponse(data)
+        except KeyError:
+            data = {
+                'status': 404,
+                'message': 'No owner ID was specified in the request'
+            }
+            return JsonResponse(data)
+
+
 
 class TempAuthCreateView(generics.ListCreateAPIView):
     #permission_classes = (IsAuthenticated,)
