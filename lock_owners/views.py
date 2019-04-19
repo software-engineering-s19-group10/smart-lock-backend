@@ -15,10 +15,19 @@ from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 from datetime import datetime
 from django.utils import timezone
-
+import os
 from lock_owners.models import Lock, Permission, Owner
 from lock_owners.serializers import (LockSerializer, PermissionSerializer,
                                      OwnerSerializer)
+
+# Library to access heroku environment variables
+from boto.s3.connection import S3Connection
+
+
+# Get the sid and auth token. change depending on environment variable names
+#client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
+#twilio_number = '+18566662253'
+
 
 class OwnerCreateView(generics.ListCreateAPIView):
     queryset = Owner.objects.all()
@@ -205,14 +214,8 @@ def get_auth_code_for_id(request):
             return JsonResponse(data)
 
 
-# Your Account Sid and Auth Token from twilio.com/console
-key_reader = open("lock_owners/key.txt", "r")
-account_sid = key_reader.readline()
-auth_token = key_reader.readline()
-client = Client(account_sid, auth_token)
-twilio_number = '+18566662253'
-
 def send_text(request):
+    
     response = request.GET["content"] + " Reply STOP to stop SMS notifications."
 
     message = client.messages.create(
@@ -222,23 +225,6 @@ def send_text(request):
     )
 
     return httpresponse.HttpResponse("Successful")
-
-
-# DISCLAIMER: MMS and REPLY don't work yet
-def send_mms(request):
-    # get uid from mms
-    response = request.POST.get("content") + " Reply STOP to stop SMS notifications."
-    message = client.messages.create(
-        body=response,
-        from_=twilio_number,
-        media_url=request.POST.get("img_url"),
-        to=request.POST.get("dest")
-    )
-
-    # if request.get("method") == "POST":
-    # send dj http response. send dictionary back
-    return httpresponse.HttpResponse("Successful")
-
 
 def reply(request):
     """Respond to incoming messages with a friendly SMS."""

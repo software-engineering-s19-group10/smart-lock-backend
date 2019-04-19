@@ -10,7 +10,7 @@ class OwnerSerializer(serializers.ModelSerializer):
 class LockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lock
-        fields = ('id', 'lock_owner', 'address')
+        fields = ('id', 'lock_owner', 'address', 'ip_address')
 
 
 class PermissionSerializer(serializers.ModelSerializer):

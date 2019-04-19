@@ -69,6 +69,12 @@ class Lock(models.Model):
         default='N/A'
     )
 
+    ip_address = models.CharField(
+        help_text='IP Address of Raspberry Pi so we can connect to it.',
+        max_length=14,
+        default='127.0.0.1'
+    )
+
     def __str__(self):
         return 'Lock {} at {}'.format(self.id, str(self.address))
 
