@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from lock_owners.models import Owner, Lock, Permission, StrangerReport, Event, TempAuth
+from lock_owners.models import Owner, Lock, Permission, StrangerReport, Event, TempAuth, VisitorImage
 
 class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +23,17 @@ class PermissionSerializer(serializers.ModelSerializer):
             'allowed_access_general', 
             'time_start', 
             'time_end'
+        )
+
+class VisitorImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VisitorImage
+        fields = (
+            'image',
+            'filename',
+            'visitor',
+            'lock',
+            'image_datetime',
         )
 
 

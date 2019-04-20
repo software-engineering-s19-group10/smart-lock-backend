@@ -2,7 +2,7 @@ from django.conf.urls import url
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.urlpatterns import format_suffix_patterns
 from lock_owners.views import OwnerCreateView, OwnerDetailView
-from lock_owners.views import LockCreateView, LockDetailView
+from lock_owners.views import LockCreateView, LockDetailView, create_img_template
 from lock_owners.views import PermissionCreateView, PermissionDetailView, StrangerReportView, send_text, reply, TempAuthCreateView
 
 from lock_owners.views import EventCreateView, EventDetailView
@@ -10,7 +10,7 @@ from lock_owners.views import get_events_for_lock
 
 from lock_owners.views import (LockCreateView, LockDetailView,
                                PermissionCreateView, PermissionDetailView,
-                               OwnerCreateView, OwnerDetailView)
+                               OwnerCreateView, OwnerDetailView, VisitorImageView)
 
 from lock_owners.views import verify_auth_code, get_temp_auth_id_for_visitor_and_lock, get_auth_code_for_id
 
@@ -27,6 +27,8 @@ urlpatterns = [
     url(r'^api/events/(?P<pk>[0-9]+)/$', EventDetailView.as_view()),
     url(r'^api/events/lock/(?P<id>[0-9]+)/$', get_events_for_lock),
     url(r'^api/srn/$', StrangerReportView.as_view()),
+    url(r'^api/post_image/$', VisitorImageView),
+    url(r'^api/image/$', create_img_template),
     url(r'^api/notify/$', send_text),
     url(r'^api/teamedward/$', reply),
     url(r'^api/authenticate/$', obtain_auth_token),

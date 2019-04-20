@@ -3,7 +3,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport, TempAuth
+from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport, TempAuth, VisitorImage
 from lock_owners.serializers import OwnerSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
 from lock_owners.serializers import EventSerializer, TempAuthSerializer
@@ -18,16 +18,19 @@ from django.utils import timezone
 import os
 from lock_owners.models import Lock, Permission, Owner
 from lock_owners.serializers import (LockSerializer, PermissionSerializer,
-                                     OwnerSerializer)
-
+                                     OwnerSerializer, VisitorImageSerializer)
+from geopy import geocoders
+import requests
+import base64
 # Library to access heroku environment variables
 from boto.s3.connection import S3Connection
 
 
 # Get the sid and auth token. change depending on environment variable names
-#client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
+client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 twilio_number = '+18566662253'
 
+gMapsKey = os.environ['GMAPS_KEY']
 
 class OwnerCreateView(generics.ListCreateAPIView):
     queryset = Owner.objects.all()
@@ -109,6 +112,10 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
 class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
+
+class VisitorImageView(generics.ListCreateAPIView):
+    queryset = VisitorImage.objects.all()
+    serializer_class = VisitorImageSerializer
 
 
 def get_events_for_lock(request, id):
@@ -214,9 +221,30 @@ def get_auth_code_for_id(request):
             return JsonResponse(data)
 
 
+
+
+def create_img_template(request):
+    if request.method == "GET":
+
+        lock = request.GET["lock"]
+        filename = request.GET["filename"]
+
+        strangerImage = VisitorImage.objects.filter(lock=lock, filename=filename)
+        img_buffer = strangerImage[0].image
+
+        html = "<html><body><img src=\"data:image/jpg;base64,%s\"></img></body></html>" % base64.b64encode(img_buffer).decode('utf-8')
+        return HttpResponse(html)
+
+
 def send_text(request):
     if request.method == "POST":
-        response = request.POST["content"] + " Reply STOP to stop SMS notifications."
+        if request.POST["type"] == "srn":
+            lock = request.POST["lock"]
+            filename = request.POST["file"]
+            url = "https://boiling-reef-89836.herokuapp.com/lock_owners/api/image/?" + "lock=" + lock + "&filename=" + filename
+            response = request.POST["content"] + " IMAGE: " + url + "  Reply REPORT to report."
+        else:
+            response = request.POST["content"] + " Reply STOP to stop SMS notifications."
 
         message = client.messages.create(
             from_=twilio_number,
@@ -245,6 +273,22 @@ def reply(request):
             owner = Owner.objects.filter(phone=number)
             if not owner:
                 return "User not found"
+            else:
+                # get lock
+                lock = Lock.objects.filter(lock_owner=owner)
+                address = lock[0].address
+
+                geolocator = geocoders.GoogleV3(api_key=gMapsKey)
+
+                location = geolocator.geocode(address, timeout=10)
+
+                BASE_URL = "https://boiling-reef-89836.herokuapp.com/lock_owners/"
+                route = 'api/srn/'
+                params = {"latitude": location.latitude, "longitude": location.longitude,
+                          "stranger_report_time": datetime.now(), "lock": lock[0].id}
+
+                requests.post(BASE_URL + route, params)
+                return
 
         else:
             text = "Invalid Response. Reply STOP to stop SMS notifications."

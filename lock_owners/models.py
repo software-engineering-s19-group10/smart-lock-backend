@@ -141,7 +141,8 @@ class VisitorImage(models.Model):
     )
 
     image_datetime = models.DateTimeField(
-        help_text='Date and time the image was captured'
+        help_text='Date and time the image was captured',
+        default=datetime.now()
     )
 
 
