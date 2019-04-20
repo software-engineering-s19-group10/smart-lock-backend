@@ -123,37 +123,6 @@ class Permission(models.Model):
     )
 
 
-class VisitorImage(models.Model):
-    """
-    Database model representing an image captured of a user from the lock's 
-    camera. It associates an image (basically just bytes) with a row in the 
-    User table. The user entry can be null, however, for unidentified users.
-    """
-    image = models.BinaryField(
-        help_text='Image of the user, in bytes',
-        editable=True
-    )
-
-    filename = models.CharField(
-        help_text='Name of the file to deliver the bytes as',
-        max_length=200
-    )
-
-    visitor = models.ForeignKey(
-        Visitor,
-        on_delete=models.SET_NULL,
-        null=True
-    )
-
-    lock = models.ForeignKey(
-        Lock,
-        on_delete=models.CASCADE,
-        null=True
-    )
-
-    image_datetime = models.DateTimeField(
-        help_text='Date and time the image was captured'
-    )
 
 
 class Event(models.Model):
