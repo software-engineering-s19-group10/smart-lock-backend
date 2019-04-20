@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport, TempAuth, VisitorImage
+from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport, TempAuth
 from lock_owners.serializers import OwnerSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
 from lock_owners.serializers import EventSerializer, TempAuthSerializer
@@ -110,9 +110,9 @@ class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
 
-class VisitorImageView(generics.ListCreateAPIView):
-    queryset = VisitorImage.objects.all()
-    serializer_class = VisitorImageSerializer
+#class VisitorImageView(generics.ListCreateAPIView):
+#    queryset = VisitorImage.objects.all()
+#    serializer_class = VisitorImageSerializer
 
 
 class ResidentCreateView(generics.ListCreateAPIView):

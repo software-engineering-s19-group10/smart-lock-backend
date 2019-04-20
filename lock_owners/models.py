@@ -139,7 +139,7 @@ class Permission(models.Model):
 
 
 class Event(models.Model):
-    timestamp = models.TimeField(
+    timestamp = models.DateTimeField(
         help_text='Time that the event happened',
         auto_now=True
     )
