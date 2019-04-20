@@ -7,11 +7,14 @@ from lock_owners.views import (EventCreateView, EventDetailView,
                                OwnerDetailView, PermissionCreateView,
                                PermissionDetailView, StrangerReportView,
                                TempAuthCreateView, TempAuthDetailView,
+                               ResidentCreateView, ResidentDetailView,
+                               ResidentImageCreateView, ResidentImageDetailView,
                                get_auth_code_for_id, get_events_for_lock,
                                get_temp_auth_id_for_visitor_and_lock,
                                get_user_id_for_token, send_mms, send_text,
                                verify_auth_code, get_temp_auths_for_lock, 
-                               get_locks_for_owner, get_events_for_user)
+                               get_locks_for_owner, get_events_for_user, 
+                               get_residents_for_lock, get_residents_for_owner)
 
 app_name = 'lock_owners'
 
@@ -27,6 +30,13 @@ urlpatterns = [
     url(r'^api/events/(?P<pk>[0-9]+)/$', EventDetailView.as_view()),
     url(r'^api/events/user/$', get_events_for_user),
     url(r'^api/events/lock/(?P<id>[0-9]+)/$', get_events_for_lock),
+    url(r'^api/residents/$', ResidentCreateView.as_view()),
+    url(r'^api/residents/(?P<pk>[0-9]+)/$', ResidentDetailView.as_view()),
+    url(r'^api/residents/lock/', get_residents_for_lock),
+    url(r'^api/residents/owner/', get_residents_for_owner),
+    url(r'^api/resident-images/', ResidentImageCreateView.as_view()),
+    url(r'^api/resident-images/(?P<pk>[0-9]+)/$', 
+        ResidentImageDetailView.as_view()),
     url(r'^api/srn/$', StrangerReportView.as_view()),
     url(r'^api/sms/$', send_text),
     url(r'^api/mms/$', send_mms),

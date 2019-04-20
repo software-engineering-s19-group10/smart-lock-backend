@@ -16,11 +16,12 @@ from twilio.twiml.messaging_response import MessagingResponse
 from django.core import serializers
 import json
 from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
-                                TempAuth)
+                                TempAuth, Resident, ResidentImage)
 from lock_owners.serializers import (EventSerializer, LockSerializer,
                                      OwnerSerializer, PermissionSerializer,
                                      StrangerReportSerializer,
-                                     TempAuthSerializer)
+                                     TempAuthSerializer, ResidentSerializer, 
+                                     ResidentImageSerializer)
 
 from rest_framework.authtoken.models import Token
 
@@ -108,6 +109,98 @@ class StrangerReportView(generics.ListCreateAPIView):
     serializer_class = StrangerReportSerializer
 
 
+class ResidentCreateView(generics.ListCreateAPIView):
+    queryset = Resident.objects.all()
+    serializer_class = ResidentSerializer
+
+
+class ResidentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Resident.objects.all()
+    serializer_class = ResidentSerializer
+
+
+class ResidentImageCreateView(generics.ListCreateAPIView):
+    queryset = ResidentImage.objects.all()
+    serializer_class = ResidentImageSerializer
+
+
+class ResidentImageDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ResidentImage.objects.all()
+    serializer_class = ResidentImageSerializer
+
+
+def get_residents_for_lock(request):
+    if request.method == 'GET':
+        try:
+            residents = Resident.objects.filter(lock=request.GET['lock'])
+            if not residents:
+                data = {
+                    'status': 200,
+                    'message': 'No residents for lock',
+                    'data': []
+                }
+                return JsonResponse(data)
+            residents_json = []
+            for resident in list(residents):
+                residents_json.append({
+                    'id': resident.id,
+                    'full_name': resident.full_name,
+                    'lock': resident.lock.id
+                })
+                data = {
+                    'status': 200,
+                    'message': 'Success',
+                    'data': residents_json
+                }
+                return JsonResponse(data)
+        except KeyError:
+            data = {
+                'status': 404,
+                'message': 'No lock ID was specified'
+            }
+            return JsonResponse(data)
+
+
+def get_residents_for_owner(request):
+    if request.method == 'GET':
+        try:
+            locks = Lock.objects.filter(lock_owner=request.GET['owner'])
+            if not locks:
+                data = {
+                    'status': 200,
+                    'message': 'No locks associated with the Owner',
+                    'data': []
+                }
+                return JsonResponse(data)
+            owner_locks = list(locks.values('id'))
+            lock_ids = [item.get('id') for item in owner_locks]
+            residents = Resident.objects.filter(lock__in=lock_ids)
+            if not residents:
+                data = {
+                    'status': 200,
+                    'message': 'No residents associated with the Owner locks',
+                    'data': []
+                }
+                return JsonResponse(data)
+            residents_json = []
+            for resident in list(residents):
+                residents_json.append({
+                    'id': resident.id,
+                    'full_name': resident.full_name,
+                    'lock': resident.lock.id
+                })
+                data = {
+                    'status': 200,
+                    'message': 'Success',
+                    'data': residents_json
+                }
+                return JsonResponse(data)
+        except KeyError:
+            data = {
+                'status': 404,
+                'message': 'No Owner ID was passed into the URL'
+            }
+
 def get_events_for_lock(request, id):
     if request.method == 'GET':
         events = Event.objects.filter(lock=id)
@@ -189,6 +282,9 @@ class TempAuthDetailView(generics.RetrieveUpdateDestroyAPIView):
     #permission_classes = (IsAuthenticated,)
     queryset = TempAuth.objects.all()
     serializer_class = TempAuthSerializer
+
+
+
 
 def verify_auth_code(request):
     if request.method == 'GET':

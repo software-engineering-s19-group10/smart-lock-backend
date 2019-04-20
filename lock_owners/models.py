@@ -37,22 +37,6 @@ class Owner(AbstractUser):
         return '{} ({})'.format(str(self.full_name), str(self.username))  
 
 
-class Resident(models.Model):
-    """
-    Database model representing a "trusted resident" of a house.
-    Residents have permissions representing when they are allowed to unlock the 
-    lock. Their pictures are also taken and stored for unlocking via facial 
-    recognition.
-    
-    TODO: We still need to store the images somewhere????
-    """
-    full_name = models.CharField(
-        help_text='Full name of the resident',
-        max_length=200,
-        null=False,
-        blank=False
-    )
-
 
 class Lock(models.Model):
     """
@@ -74,6 +58,43 @@ class Lock(models.Model):
 
     def __str__(self):
         return 'Lock {} at {}'.format(self.id, str(self.address))
+
+
+class Resident(models.Model):
+    """
+    Database model representing a "trusted resident" of a house.
+    Residents have permissions representing when they are allowed to unlock the 
+    lock. Their pictures are also taken and stored for unlocking via facial 
+    recognition.
+    
+    TODO: We still need to store the images somewhere????
+    """
+    full_name = models.CharField(
+        help_text='Full name of the resident',
+        max_length=200,
+        null=False,
+        blank=False
+    )
+
+    lock = models.ForeignKey(
+        Lock,
+        help_text='The lock that this Resident was created for',
+        on_delete=models.CASCADE,
+        null=False
+    )
+
+
+class ResidentImage(models.Model):
+    resident = models.ForeignKey(
+        Resident,
+        help_text='Resident that this is an image of',
+        on_delete=models.CASCADE
+    )
+
+    image_bytes = models.BinaryField(
+        help_text='Image in bytes',
+        editable=True
+    )
 
 
 class Permission(models.Model):

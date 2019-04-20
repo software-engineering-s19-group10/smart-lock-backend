@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
-                                TempAuth)
+                                TempAuth, Resident, ResidentImage)
 
 
 class OwnerSerializer(serializers.ModelSerializer):
@@ -59,4 +59,22 @@ class TempAuthSerializer(serializers.ModelSerializer):
             'lock',
             'time_created',
             'auth_code'
+        )
+
+class ResidentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resident
+        fields = (
+            'id',
+            'full_name',
+            'lock'
+        )
+
+class ResidentImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResidentImage
+        fields = (
+            'id',
+            'resident',
+            'image_bytes'
         )
