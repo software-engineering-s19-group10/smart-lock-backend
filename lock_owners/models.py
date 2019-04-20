@@ -72,7 +72,7 @@ class Lock(models.Model):
     ip_address = models.CharField(
         help_text='IP Address of Raspberry Pi so we can connect to it.',
         max_length=14,
-        default='127.0.0.1'
+        default='127.0.0.1',
     )
 
     def __str__(self):
@@ -182,7 +182,7 @@ class StrangerReport(models.Model):
     )
 
     stranger_report_time = models.DateTimeField(
-        default=datetime.now,
+        default=datetime.now(),
         help_text='Date and time the report was made'
     )
 
@@ -190,6 +190,7 @@ class StrangerReport(models.Model):
         Lock,
         on_delete=models.CASCADE
     )
+
 
 class TempAuth(models.Model):
     visitor = models.ForeignKey(

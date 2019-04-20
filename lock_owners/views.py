@@ -26,7 +26,7 @@ from boto.s3.connection import S3Connection
 
 # Get the sid and auth token. change depending on environment variable names
 #client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
-#twilio_number = '+18566662253'
+twilio_number = '+18566662253'
 
 
 class OwnerCreateView(generics.ListCreateAPIView):
@@ -215,33 +215,44 @@ def get_auth_code_for_id(request):
 
 
 def send_text(request):
-    
-    response = request.GET["content"] + " Reply STOP to stop SMS notifications."
+    if request.method == "POST":
+        response = request.POST["content"] + " Reply STOP to stop SMS notifications."
 
-    message = client.messages.create(
-        from_=twilio_number,
-        body=response,
-        to="+" + request.GET["dest"]
-    )
+        message = client.messages.create(
+            from_=twilio_number,
+            body=response,
+            to="+" + request.POST["dest"]
+        )
 
-    return httpresponse.HttpResponse("Successful")
+        data = {
+            'message': "Success.",
+            'status': 200
+        }
+        return JsonResponse(data)
 
 def reply(request):
     """Respond to incoming messages with a friendly SMS."""
-    # Get information about the
-    number = request.form['From']
-    message_body = request.form['Body']
+    if request.method == "POST":
+        # Get information about the
+        number = request.form['From']
+        message_body = request.form['Body']
 
-    if message_body == "STOP":
-        # do action to stop sms notifications for user
-        text = "You have unsubscribed from SMS notifications."
-    else:
-        text = "Invalid Response. Reply STOP to stop SMS notifications."
+        if message_body == "STOP":
+            # do action to stop sms notifications for user
+            text = "You have unsubscribed from SMS notifications."
+        elif message_body == "REPORT":
+            # Report the stranger report
+            owner = Owner.objects.filter(phone=number)
+            if not owner:
+                return "User not found"
 
-    # Start our response
-    resp = MessagingResponse()
+        else:
+            text = "Invalid Response. Reply STOP to stop SMS notifications."
 
-    # Add a message
-    resp.message(text)
+        # Start our response
+        resp = MessagingResponse()
 
-    return str(resp)
+        # Add a message
+        resp.message(text)
+
+        return str(resp)

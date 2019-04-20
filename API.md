@@ -49,8 +49,8 @@ Here is an example of the returned value:
 
 ``` json
 [
-{"latitude":65.0,"longitude":-144.123,"stranger_report_time":"2019-03-20T16:42:37Z","lock":1},
-{"latitude":65.0,"longitude":-144.123,"stranger_report_time":"2019-03-20T16:42:37Z","lock":1}
+{ "latitude": 65.0, "longitude": -144.123, "stranger_report_time": "2019-03-20T16:42:37Z", "lock": 1 },
+{ "latitude": 65.0, "longitude": -144.123, "stranger_report_time": "2019-03-20T16:42:37Z", "lock": 1 }
 ] 
 ```
 
