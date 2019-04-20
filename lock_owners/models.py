@@ -54,20 +54,6 @@ class Resident(models.Model):
     )
 
 
-class Visitor(models.Model):
-    """
-    Database model representing a general visitor for a lock.
-    Visitors can be granted access for locks.
-    """
-
-    full_name = models.CharField(
-        help_text='Name of the visitor',
-        max_length=200,
-        null=False,
-        blank=False
-    )
-
-
 class Lock(models.Model):
     """
     Database model for a smart lock. Contains useful info and links to
