@@ -9,8 +9,10 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError
+from lock_owners.models import Owner, Lock, Permission, Event, StrangerReport, TempAuth, VisitorImage
+from lock_owners.serializers import OwnerSerializer, StrangerReportSerializer
+from lock_owners.serializers import LockSerializer, PermissionSerializer
+from lock_owners.serializers import EventSerializer, TempAuthSerializer
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from django.core import serializers
@@ -107,6 +109,10 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
 class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
+
+class VisitorImageView(generics.ListCreateAPIView):
+    queryset = VisitorImage.objects.all()
+    serializer_class = VisitorImageSerializer
 
 
 class ResidentCreateView(generics.ListCreateAPIView):
@@ -457,57 +463,82 @@ def get_locks_for_owner(request):
             }
             return JsonResponse(data)
 
-# Your Account Sid and Auth Token from twilio.com/console
-key_reader = open("lock_owners/key.txt", "r")
-account_sid = key_reader.readline()
-auth_token = key_reader.readline()
-client = Client(account_sid, auth_token)
-twilio_number = '+18566662253'
+
+
+def create_img_template(request):
+    if request.method == "GET":
+
+        lock = request.GET["lock"]
+        filename = request.GET["filename"]
+
+        strangerImage = VisitorImage.objects.filter(lock=lock, filename=filename)
+        img_buffer = strangerImage[0].image
+
+        html = "<html><body><img src=\"data:image/jpg;base64,%s\"></img></body></html>" % base64.b64encode(img_buffer).decode('utf-8')
+        return HttpResponse(html)
+
 
 def send_text(request):
-    response = request.GET["content"] + " Reply STOP to stop SMS notifications."
+    if request.method == "POST":
+        if request.POST["type"] == "srn":
+            lock = request.POST["lock"]
+            filename = request.POST["file"]
+            url = "https://boiling-reef-89836.herokuapp.com/lock_owners/api/image/?" + "lock=" + lock + "&filename=" + filename
+            response = request.POST["content"] + " IMAGE: " + url + "  Reply REPORT to report."
+        else:
+            response = request.POST["content"] + " Reply STOP to stop SMS notifications."
 
-    message = client.messages.create(
-        from_=twilio_number,
-        body=response,
-        to="+" + request.GET["dest"]
-    )
+        message = client.messages.create(
+            from_=twilio_number,
+            body=response,
+            to="+" + request.POST["dest"]
+        )
 
-    return httpresponse.HttpResponse("Successful")
-
-
-# DISCLAIMER: MMS and REPLY don't work yet
-def send_mms(request):
-    # get uid from mms
-    response = request.POST.get("content") + " Reply STOP to stop SMS notifications."
-    message = client.messages.create(
-        body=response,
-        from_=twilio_number,
-        media_url=request.POST.get("img_url"),
-        to=request.POST.get("dest")
-    )
-
-    # if request.get("method") == "POST":
-    # send dj http response. send dictionary back
-    return httpresponse.HttpResponse("Successful")
-
+        data = {
+            'message': "Success.",
+            'status': 200
+        }
+        return JsonResponse(data)
 
 def reply(request):
     """Respond to incoming messages with a friendly SMS."""
-    # Get information about the
-    number = request.form['From']
-    message_body = request.form['Body']
+    if request.method == "POST":
+        # Get information about the
+        number = request.form['From']
+        message_body = request.form['Body']
 
-    if message_body == "STOP":
-        # do action to stop sms notifications for user
-        text = "You have unsubscribed from SMS notifications."
-    else:
-        text = "Invalid Response. Reply STOP to stop SMS notifications."
+        if message_body == "STOP":
+            # do action to stop sms notifications for user
+            text = "You have unsubscribed from SMS notifications."
+        elif message_body == "REPORT":
+            # Report the stranger report
+            owner = Owner.objects.filter(phone=number)
+            if not owner:
+                return "User not found"
+            else:
+                # get lock
+                lock = Lock.objects.filter(lock_owner=owner)
+                address = lock[0].address
 
-    # Start our response
-    resp = MessagingResponse()
+                geolocator = geocoders.GoogleV3(api_key=gMapsKey)
 
-    # Add a message
-    resp.message(text)
+                location = geolocator.geocode(address, timeout=10)
 
-    return str(resp)
+                BASE_URL = "https://boiling-reef-89836.herokuapp.com/lock_owners/"
+                route = 'api/srn/'
+                params = {"latitude": location.latitude, "longitude": location.longitude,
+                          "stranger_report_time": datetime.now(), "lock": lock[0].id}
+
+                requests.post(BASE_URL + route, params)
+                return
+
+        else:
+            text = "Invalid Response. Reply STOP to stop SMS notifications."
+
+        # Start our response
+        resp = MessagingResponse()
+
+        # Add a message
+        resp.message(text)
+
+        return str(resp)

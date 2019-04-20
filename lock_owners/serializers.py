@@ -13,7 +13,7 @@ class OwnerSerializer(serializers.ModelSerializer):
 class LockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lock
-        fields = ('id', 'lock_owner', 'address')
+        fields = ('id', 'lock_owner', 'address', 'ip_address')
 
 
 class PermissionSerializer(serializers.ModelSerializer):
@@ -26,6 +26,17 @@ class PermissionSerializer(serializers.ModelSerializer):
             'allowed_access_general', 
             'time_start', 
             'time_end'
+        )
+
+class VisitorImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VisitorImage
+        fields = (
+            'image',
+            'filename',
+            'visitor',
+            'lock',
+            'image_datetime',
         )
 
 
