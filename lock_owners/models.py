@@ -139,10 +139,10 @@ class Permission(models.Model):
 
 
 class Event(models.Model):
-    #timestamp = models.DateTimeField(
-    #    help_text='Time that the event happened',
-    #    auto_now=True
-    #)
+    timestamp = models.DateTimeField(
+        help_text='Time that the event happened',
+        auto_now=True
+    )
 
     duration = models.IntegerField(
         help_text='Number of seconds that the event occurred for'
