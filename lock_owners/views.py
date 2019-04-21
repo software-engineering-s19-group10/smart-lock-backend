@@ -18,12 +18,12 @@ from twilio.twiml.messaging_response import MessagingResponse
 from django.core import serializers
 import json
 from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
-                                TempAuth, Resident, ResidentImage, VisitorImage)
+                                TempAuth, Resident, ResidentImage)
 from lock_owners.serializers import (EventSerializer, LockSerializer,
                                      OwnerSerializer, PermissionSerializer,
                                      StrangerReportSerializer,
                                      TempAuthSerializer, ResidentSerializer, 
-                                     ResidentImageSerializer, VisitorImageSerializer)
+                                     ResidentImageSerializer)
 
 from rest_framework.authtoken.models import Token
 import requests
@@ -111,9 +111,9 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EventSerializer
     #permission_classes = (IsAuthenticated,)
 
-class VisitorImageView(generics.ListCreateAPIView):
-    queryset = VisitorImage.objects.all()
-    serializer_class = VisitorImageSerializer
+#class VisitorImageView(generics.ListCreateAPIView):
+#    queryset = VisitorImage.objects.all()
+#    serializer_class = VisitorImageSerializer
 
 
 
@@ -121,9 +121,9 @@ class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
 
-class VisitorImageView(generics.ListCreateAPIView):
-    queryset = VisitorImage.objects.all()
-    serializer_class = VisitorImageSerializer
+#class VisitorImageView(generics.ListCreateAPIView):
+#    queryset = VisitorImage.objects.all()
+#    serializer_class = VisitorImageSerializer
 
 
 class ResidentCreateView(generics.ListCreateAPIView):
@@ -476,17 +476,17 @@ def get_locks_for_owner(request):
 
 
 
-def create_img_template(request):
-    if request.method == "GET":
-
-        lock = request.GET["lock"]
-        filename = request.GET["filename"]
-
-        strangerImage = VisitorImage.objects.filter(lock=lock, filename=filename)
-        img_buffer = strangerImage[0].image
-
-        html = "<html><body><img src=\"data:image/jpg;base64,%s\"></img></body></html>" % base64.b64encode(img_buffer).decode('utf-8')
-        return HttpResponse(html)
+#def create_img_template(request):
+#    if request.method == "GET":
+#
+#        lock = request.GET["lock"]
+#        filename = request.GET["filename"]
+#
+#        strangerImage = VisitorImage.objects.filter(lock=lock, #filename=filename)
+#        img_buffer = strangerImage[0].image
+#
+#        html = "<html><body><img src=\"data:image/jpg;base64,#%s\"></img></body></html>" % base64.b64encode(img_buffer).decode#('utf-8')
+#        return HttpResponse(html)
 
 
 def send_text(request):
