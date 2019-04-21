@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import os
 import django.http.response as httpresponse
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
@@ -26,8 +26,14 @@ from lock_owners.serializers import (EventSerializer, LockSerializer,
                                      ResidentImageSerializer, VisitorImageSerializer)
 
 from rest_framework.authtoken.models import Token
+import requests
+from geopy import geocoders
 
-
+gMapsKey = os.environ['GMAPS_KEY']
+# gMapsKey = -1
+# client = -1
+client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
+twilio_number = '+18566662253'
 
 class OwnerCreateView(generics.ListCreateAPIView):
     queryset = Owner.objects.all()

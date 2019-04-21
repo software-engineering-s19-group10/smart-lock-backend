@@ -120,8 +120,8 @@ class VisitorImage(models.Model):
     )
 
     name = models.CharField(
-        on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        max_length=100
     )
 
     lock = models.ForeignKey(
