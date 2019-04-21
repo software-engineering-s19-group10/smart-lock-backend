@@ -159,6 +159,12 @@ class Event(models.Model):
         max_length=200
     )
 
+    image_bytes = models.BinaryField(
+        help_text='Optional image data associated with this event',
+        editable=True,
+        blank=True,
+        null=True
+    )
 
 class StrangerReport(models.Model):
     """
@@ -198,7 +204,8 @@ class TempAuth(models.Model):
     )
 
     time_created = models.DateTimeField(
-        auto_now=True,
+        editable=True,
+        default=datetime.now(),
         help_text='Time that the temporary authentication code was assigned'
     )
 

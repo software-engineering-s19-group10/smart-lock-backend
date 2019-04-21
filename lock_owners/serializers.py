@@ -47,7 +47,8 @@ class EventSerializer(serializers.ModelSerializer):
             'timestamp',
             'duration',
             'lock',
-            'event_type'
+            'event_type',
+            'image_bytes'
         )
 
 
