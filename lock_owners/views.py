@@ -18,12 +18,12 @@ from twilio.twiml.messaging_response import MessagingResponse
 from django.core import serializers
 import json
 from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
-                                TempAuth, Resident, ResidentImage)
+                                TempAuth, Resident, ResidentImage, VisitorImage)
 from lock_owners.serializers import (EventSerializer, LockSerializer,
                                      OwnerSerializer, PermissionSerializer,
                                      StrangerReportSerializer,
                                      TempAuthSerializer, ResidentSerializer, 
-                                     ResidentImageSerializer)
+                                     ResidentImageSerializer, VisitorImageSerializer)
 
 from rest_framework.authtoken.models import Token
 
@@ -105,14 +105,19 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EventSerializer
     #permission_classes = (IsAuthenticated,)
 
+class VisitorImageView(generics.ListCreateAPIView):
+    queryset = VisitorImage.objects.all()
+    serializer_class = VisitorImageSerializer
+
+
 
 class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
 
-#class VisitorImageView(generics.ListCreateAPIView):
-#    queryset = VisitorImage.objects.all()
-#    serializer_class = VisitorImageSerializer
+class VisitorImageView(generics.ListCreateAPIView):
+    queryset = VisitorImage.objects.all()
+    serializer_class = VisitorImageSerializer
 
 
 class ResidentCreateView(generics.ListCreateAPIView):
