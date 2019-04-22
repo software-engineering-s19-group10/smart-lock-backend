@@ -145,7 +145,10 @@ class ResidentImageCreateView(generics.ListCreateAPIView):
     serializer_class = ResidentImageSerializer
 
     def perform_create(self, serializer):
-        os.environ['NEW_IMAGE'] = '1'
+        with open('lock_owners/image_added.txt', 'w+') as images_added:
+            images_added.seek(0)
+            images_added.write('1')
+            images_added.truncate()
         serializer.save()
 
 
@@ -483,27 +486,34 @@ def get_locks_for_owner(request):
 
 def get_embedded_data(request):
     if request.method == 'GET':
-        if os.environ.get('NEW_IMAGE') == '1':
-            resident_images = ResidentImage.objects.all()
-            resident_image_list = []
-            for image in list(resident_images):
-                resident = list(Resident.objects.filter(id=image.resident.id))
-                resident_name = resident[0].full_name
-                resident_image_list.append({
-                    'name': resident_name,
-                    'image_bytes': image.image_bytes
-                })
-            #print(resident_image_list)
-            data = embedFaces(resident_image_list)
-            #print(data)
-            os.environ['NEW_IMAGE'] = '0'
-            return JsonResponse(data, safe=False)
-        else:
-            data = {
-                'status': 404,
-                'message': 'No new images added'
-            }
-            return JsonResponse(data)
+        with open('lock_owners/image_added.txt', 'r+') as images_added:
+            print(images_added)
+            images_added.seek(0)
+            new_images = images_added.read()
+            print(new_images)
+            if new_images == '1':
+                resident_images = ResidentImage.objects.all()
+                resident_image_list = []
+                for image in list(resident_images):
+                    resident = list(Resident.objects.filter(id=image.resident.id))
+                    resident_name = resident[0].full_name
+                    resident_image_list.append({
+                        'name': resident_name,
+                        'image_bytes': image.image_bytes
+                    })
+                #print(resident_image_list)
+                data = embedFaces(resident_image_list)
+                #print(data)
+                images_added.seek(0)
+                images_added.write('0')
+                images_added.truncate()
+                return JsonResponse(data, safe=False)
+            else:
+                data = {
+                    'status': 404,
+                    'message': 'No new images added'
+                }
+                return JsonResponse(data)
 
 #def create_img_template(request):
 #    if request.method == "GET":
