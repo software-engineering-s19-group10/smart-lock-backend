@@ -28,12 +28,16 @@ from lock_owners.serializers import (EventSerializer, LockSerializer,
                                      TempAuthSerializer, ResidentSerializer, 
                                      ResidentImageSerializer)
 
+from lock_owners.recognition_utils import bytestring_to_cv, embedFaces
+
 from rest_framework.authtoken.models import Token
 import requests
 from geopy import geocoders, Nominatim
 
 
 # print('GMAPS_KEY' in os.environ)
+IMAGES_ADDED = 0
+
 gMapsKey = os.environ['GMAPS_KEY']
 client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 twilio_number = '+18566662253'
@@ -184,6 +188,13 @@ class ResidentDetailView(generics.RetrieveUpdateDestroyAPIView):
 class ResidentImageCreateView(generics.ListCreateAPIView):
     queryset = ResidentImage.objects.all()
     serializer_class = ResidentImageSerializer
+
+    def perform_create(self, serializer):
+        with open('lock_owners/image_added.txt', 'w+') as images_added:
+            images_added.seek(0)
+            images_added.write('1')
+            images_added.truncate()
+        serializer.save()
 
 
 class ResidentImageDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -344,8 +355,6 @@ class TempAuthDetailView(generics.RetrieveUpdateDestroyAPIView):
     #permission_classes = (IsAuthenticated,)
     queryset = TempAuth.objects.all()
     serializer_class = TempAuthSerializer
-
-
 
 
 def verify_auth_code(request):
@@ -520,6 +529,36 @@ def get_locks_for_owner(request):
             return JsonResponse(data)
 
 
+def get_embedded_data(request):
+    if request.method == 'GET':
+        with open('lock_owners/image_added.txt', 'r+') as images_added:
+            print(images_added)
+            images_added.seek(0)
+            new_images = images_added.read()
+            print(new_images)
+            if new_images == '1':
+                resident_images = ResidentImage.objects.all()
+                resident_image_list = []
+                for image in list(resident_images):
+                    resident = list(Resident.objects.filter(id=image.resident.id))
+                    resident_name = resident[0].full_name
+                    resident_image_list.append({
+                        'name': resident_name,
+                        'image_bytes': image.image_bytes
+                    })
+                #print(resident_image_list)
+                data = embedFaces(resident_image_list)
+                #print(data)
+                images_added.seek(0)
+                images_added.write('0')
+                images_added.truncate()
+                return JsonResponse(data, safe=False)
+            else:
+                data = {
+                    'status': 404,
+                    'message': 'No new images added'
+                }
+                return JsonResponse(data)
 
 def create_img_template(request):
     if request.method == "GET":
@@ -574,13 +613,8 @@ def reply(request):
                 latitude = loc["results"][0]["geometry"]["location"]["lat"]
                 longitude = loc["results"][0]["geometry"]["location"]["lng"]
 
+                StrangerReport.objects.create(latitude=latitude, longitude=longitude, stranger_report_time=datetime.now(), lock=lock[0].id)
 
-                BASE_URL = "https://boiling-reef-89836.herokuapp.com/lock_owners/"
-                route = 'api/srn/'
-                params = {"latitude": latitude, "longitude": longitude,
-                          "stranger_report_time": datetime.now(), "lock": lock[0].id}
-
-                requests.post(BASE_URL + route, params)
                 text = "Reported."
         else:
             text = "Invalid Response. Reply STOP to stop SMS notifications."
