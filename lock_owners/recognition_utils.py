@@ -52,7 +52,7 @@ def embedFaces(image_dict_list):
         # detect the (x, y)-coordinates of the bounding boxes
         # corresponding to each face in the input image
         boxes = face_recognition.face_locations(rgb,
-            model="cnn")
+            model="hog")
 
         # compute the facial embedding for the face
         encodings = face_recognition.face_encodings(rgb, boxes)
