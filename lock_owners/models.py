@@ -137,7 +137,6 @@ class Permission(models.Model):
 
 
 
-
 class Event(models.Model):
     timestamp = models.DateTimeField(
         help_text='Time that the event happened',
@@ -161,6 +160,14 @@ class Event(models.Model):
 
     image_bytes = models.BinaryField(
         help_text='Optional image data associated with this event',
+        editable=True,
+        blank=True,
+        null=True
+    )
+
+    filename = models.CharField(
+        help_text='Optional filename associated with Image bytes. This is necessary if you are adding an image.',
+        max_length=40,
         editable=True,
         blank=True,
         null=True
