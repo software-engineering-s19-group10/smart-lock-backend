@@ -25,9 +25,13 @@ from lock_owners.serializers import (EventSerializer, LockSerializer,
                                      TempAuthSerializer, ResidentSerializer, 
                                      ResidentImageSerializer)
 
+from lock_owners.recognition_utils import bytestring_to_cv, embedFaces
+
 from rest_framework.authtoken.models import Token
 import requests
 from geopy import geocoders
+
+IMAGES_ADDED = 0
 
 gMapsKey = os.environ['GMAPS_KEY']
 # gMapsKey = -1
@@ -139,6 +143,10 @@ class ResidentDetailView(generics.RetrieveUpdateDestroyAPIView):
 class ResidentImageCreateView(generics.ListCreateAPIView):
     queryset = ResidentImage.objects.all()
     serializer_class = ResidentImageSerializer
+
+    def perform_create(self, serializer):
+        os.environ['NEW_IMAGE'] = '1'
+        serializer.save()
 
 
 class ResidentImageDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -299,8 +307,6 @@ class TempAuthDetailView(generics.RetrieveUpdateDestroyAPIView):
     #permission_classes = (IsAuthenticated,)
     queryset = TempAuth.objects.all()
     serializer_class = TempAuthSerializer
-
-
 
 
 def verify_auth_code(request):
@@ -475,6 +481,29 @@ def get_locks_for_owner(request):
             return JsonResponse(data)
 
 
+def get_embedded_data(request):
+    if request.method == 'GET':
+        if os.environ.get('NEW_IMAGE') == '1':
+            resident_images = ResidentImage.objects.all()
+            resident_image_list = []
+            for image in list(resident_images):
+                resident = list(Resident.objects.filter(id=image.resident.id))
+                resident_name = resident[0].full_name
+                resident_image_list.append({
+                    'name': resident_name,
+                    'image_bytes': image.image_bytes
+                })
+            #print(resident_image_list)
+            data = embedFaces(resident_image_list)
+            #print(data)
+            os.environ['NEW_IMAGE'] = '0'
+            return JsonResponse(data, safe=False)
+        else:
+            data = {
+                'status': 404,
+                'message': 'No new images added'
+            }
+            return JsonResponse(data)
 
 #def create_img_template(request):
 #    if request.method == "GET":
