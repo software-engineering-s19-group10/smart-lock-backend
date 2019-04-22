@@ -1,9 +1,11 @@
 from datetime import datetime
-import os
+import os, base64, json
 import django.http.response as httpresponse
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+# from django_twilio.decorators import twilio_view
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -14,7 +16,8 @@ from lock_owners.serializers import OwnerSerializer, StrangerReportSerializer
 from lock_owners.serializers import LockSerializer, PermissionSerializer
 from lock_owners.serializers import EventSerializer, TempAuthSerializer
 from twilio.rest import Client
-from twilio.twiml.messaging_response import MessagingResponse
+from twilio.twiml.messaging_response import Message, MessagingResponse
+from twilio import twiml
 from django.core import serializers
 import json
 from lock_owners.models import (Event, Lock, Owner, Permission, StrangerReport,
@@ -29,15 +32,37 @@ from lock_owners.recognition_utils import bytestring_to_cv, embedFaces
 
 from rest_framework.authtoken.models import Token
 import requests
-from geopy import geocoders
+from geopy import geocoders, Nominatim
 
+
+# print('GMAPS_KEY' in os.environ)
 IMAGES_ADDED = 0
 
 gMapsKey = os.environ['GMAPS_KEY']
-# gMapsKey = -1
-# client = -1
 client = Client(os.environ['TWILIO_SID'], os.environ['TWILIO_AUTH_TOKEN'])
 twilio_number = '+18566662253'
+
+
+
+def send_text(message, lock, phone_number, type="other", filename=None):
+
+    if type == "srn":
+
+        if filename == None:
+            return
+
+        url = "https://boiling-reef-89836.herokuapp.com/lock_owners/api/image/?" + "lock=" + lock + "&filename=" + filename
+        response = message + " IMAGE: " + url + "  Reply REPORT to report."
+    else:
+        response = message + "."
+
+    text = client.messages.create(
+        from_=twilio_number,
+        body=response,
+        to="+1" + phone_number
+    )
+
+    return
 
 class OwnerCreateView(generics.ListCreateAPIView):
     queryset = Owner.objects.all()
@@ -107,6 +132,30 @@ class PermissionDetailView(generics.RetrieveUpdateDestroyAPIView):
 class EventCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+        lock_id = self.request.query_params.get("lock")
+        event_type = self.request.query_params.get("event_type")
+
+        #print(Lock.objects.filter(id=lock_id))
+        owner = Lock.objects.filter(id=lock_id)[0].lock_owner
+        phone_number = owner.phone
+
+        if not "unlocked by" in event_type.lower():
+            image_bytes = self.request.query_params.get("image_bytes")
+            filename = self.request.query_params.get("filename")
+
+            send_text("Stranger Detected", lock_id, phone_number, type="srn", filename=filename)
+        else:
+
+            send_text(event_type, lock_id, phone_number)
+
+
+
+
     #permission_classes = (IsAuthenticated,)
 
 
@@ -124,10 +173,6 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
 class StrangerReportView(generics.ListCreateAPIView):
     queryset = StrangerReport.objects.all()
     serializer_class = StrangerReportSerializer
-
-#class VisitorImageView(generics.ListCreateAPIView):
-#    queryset = VisitorImage.objects.all()
-#    serializer_class = VisitorImageSerializer
 
 
 class ResidentCreateView(generics.ListCreateAPIView):
@@ -517,73 +562,62 @@ def get_embedded_data(request):
                 }
                 return JsonResponse(data)
 
-#def create_img_template(request):
-#    if request.method == "GET":
-#
-#        lock = request.GET["lock"]
-#        filename = request.GET["filename"]
-#
-#        strangerImage = VisitorImage.objects.filter(lock=lock, #filename=filename)
-#        img_buffer = strangerImage[0].image
-#
-#        html = "<html><body><img src=\"data:image/jpg;base64,#%s\"></img></body></html>" % base64.b64encode(img_buffer).decode#('utf-8')
-#        return HttpResponse(html)
+def create_img_template(request):
+    if request.method == "GET":
 
+        lock = request.GET["lock"]
+        filename = request.GET["filename"]
 
-def send_text(request):
-    if request.method == "POST":
-        if request.POST["type"] == "srn":
-            lock = request.POST["lock"]
-            filename = request.POST["file"]
-            url = "https://boiling-reef-89836.herokuapp.com/lock_owners/api/image/?" + "lock=" + lock + "&filename=" + filename
-            response = request.POST["content"] + " IMAGE: " + url + "  Reply REPORT to report."
-        else:
-            response = request.POST["content"] + " Reply STOP to stop SMS notifications."
+        strangerImage = Event.objects.filter(lock=lock, filename=filename)
+        img_buffer = strangerImage[0].image
 
-        message = client.messages.create(
-            from_=twilio_number,
-            body=response,
-            to="+" + request.POST["dest"]
-        )
+        html = "<html><body><img src=\"data:image/jpg;base64,#%s\"></img></body></html>" % base64.b64encode(img_buffer).decode('utf-8')
+        return HttpResponse(html)
 
-        data = {
-            'message': "Success.",
-            'status': 200
-        }
-        return JsonResponse(data)
-
+@csrf_exempt
 def reply(request):
     """Respond to incoming messages with a friendly SMS."""
     if request.method == "POST":
-        # Get information about the
-        number = request.form['From']
-        message_body = request.form['Body']
+        data = request.POST
+        data = data.dict()
 
-        if message_body == "STOP":
+        # Get information about the
+        number = data['From']
+        number = number[2:]
+        message_body = data['Body']
+
+        text = "Error."
+
+        if "STOP" in message_body:
             # do action to stop sms notifications for user
             text = "You have unsubscribed from SMS notifications."
-        elif message_body == "REPORT":
+
+        elif "REPORT" in message_body:
             # Report the stranger report
-            owner = Owner.objects.filter(phone=number)
+            print(4123)
+            owner = Owner.objects.all()[:1].get()
+            print(190238109238012)
             if not owner:
-                return "User not found"
+                text = "Not Authorized."
             else:
                 # get lock
+
                 lock = Lock.objects.filter(lock_owner=owner)
+
+
                 address = lock[0].address
 
-                geolocator = geocoders.GoogleV3(api_key=gMapsKey)
+                response = requests.get(
+                    'https://maps.googleapis.com/maps/api/geocode/json?key=' + gMapsKey + '&address=' + address)
 
-                location = geolocator.geocode(address, timeout=10)
+                loc = response.json()
 
-                BASE_URL = "https://boiling-reef-89836.herokuapp.com/lock_owners/"
-                route = 'api/srn/'
-                params = {"latitude": location.latitude, "longitude": location.longitude,
-                          "stranger_report_time": datetime.now(), "lock": lock[0].id}
+                latitude = loc["results"][0]["geometry"]["location"]["lat"]
+                longitude = loc["results"][0]["geometry"]["location"]["lng"]
 
-                requests.post(BASE_URL + route, params)
-                return
+                StrangerReport.objects.create(latitude=latitude, longitude=longitude, stranger_report_time=datetime.now(), lock=lock[0].id)
 
+                text = "Reported."
         else:
             text = "Invalid Response. Reply STOP to stop SMS notifications."
 
@@ -593,4 +627,4 @@ def reply(request):
         # Add a message
         resp.message(text)
 
-        return str(resp)
+        return HttpResponse(resp)
