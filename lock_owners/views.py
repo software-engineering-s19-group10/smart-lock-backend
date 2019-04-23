@@ -536,6 +536,8 @@ def get_embedded_data(request):
             images_added.seek(0)
             new_images = images_added.read()
             print(new_images)
+            if 'force' in request.GET:
+                new_images = '1'
             if new_images == '1':
                 resident_images = ResidentImage.objects.all()
                 resident_image_list = []
