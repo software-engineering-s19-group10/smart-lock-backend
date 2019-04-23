@@ -32,8 +32,6 @@ from lock_owners.recognition_utils import bytestring_to_cv, embedFaces
 
 from rest_framework.authtoken.models import Token
 import requests
-from geopy import geocoders, Nominatim
-
 
 # print('GMAPS_KEY' in os.environ)
 IMAGES_ADDED = 0
@@ -602,7 +600,6 @@ def reply(request):
 
                 lock = Lock.objects.filter(lock_owner=owner)
 
-
                 address = lock[0].address
 
                 response = requests.get(
@@ -624,5 +621,13 @@ def reply(request):
 
         # Add a message
         resp.message(text)
+
+        return HttpResponse(resp)
+    else:
+        # Start our response
+        resp = MessagingResponse()
+
+        # Add a message
+        resp.message("Error.")
 
         return HttpResponse(resp)
