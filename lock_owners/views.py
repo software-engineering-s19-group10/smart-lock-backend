@@ -592,9 +592,7 @@ def reply(request):
 
         elif "REPORT" in message_body:
             # Report the stranger report
-            print(4123)
             owner = Owner.objects.all()[:1].get()
-            print(190238109238012)
             if not owner:
                 text = "Not Authorized."
             else:
